@@ -49,14 +49,14 @@ export function Button({
       </Link>
     );
   }
-  onClick = onClick as Function;
+
   return (
     <button
       className={`button button--${size || "default"} ${
         inverse && "button--inverse"
       } ${danger && "button--danger"}`}
       type={type}
-      onClick={() => onClick}
+      onClick={() => (onClick ? onClick() : () => {})}
       disabled={disabled}
     >
       {children}

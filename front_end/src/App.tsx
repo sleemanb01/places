@@ -16,7 +16,6 @@ import { AuthContext } from "./hooks/auth-context";
 
 function App() {
   const authCtx = useContext(AuthContext);
-  console.log("app");
 
   let routes;
 

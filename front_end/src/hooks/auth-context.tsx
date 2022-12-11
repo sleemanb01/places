@@ -13,18 +13,14 @@ export function AuthContextProvider({ children }: { children: JSX.Element }) {
   const [auth, setAuth] = useState<user | undefined>(undefined);
 
   function login(user: user) {
-    // await AsyncStorage.setItem("user", JSON.stringify(user));
     setAuth(user);
   }
 
   function updatePerson(user: user) {
-    // await AsyncStorage.setItem("user", JSON.stringify(tmp));
-
     setAuth(user);
   }
 
   function logout() {
-    // await AsyncStorage.removeItem("user");
     setAuth(undefined);
   }
 
