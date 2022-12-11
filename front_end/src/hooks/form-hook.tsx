@@ -1,7 +1,7 @@
 import { useReducer, useCallback } from "react";
 import { EReducerActionType } from "../typing/enums";
 import { reducerFormAction, reducerFormState } from "../typing/types";
-import { formReducer, reducerFormStateInitVal } from "./useReducer";
+import { formReducer } from "./useReducer";
 
 export const useForm = (
   initialInputs: reducerFormState["inputs"],
