@@ -1,1 +1,5 @@
-console.log('begging with TS, node, Express');
+import express from 'express';
+
+const app = express();
+
+app.listen(3000);
