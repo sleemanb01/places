@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { validationResult } from 'express-validator'
 
 import { HttpError } from '../models/http-error';
 import { HTTP_RESPONSE_STATUS } from '../types/enums';
 import { user } from '../types/interfaces';
-import { ERROR_EMAIL_EXIST, ERROR_INVALIV_ID } from '../util/errorMessages';
+import { ERROR_EMAIL_EXIST, ERROR_INVALID_ID, ERROR_INVALID_INPUTS } from '../util/errorMessages';
 
 /* ************************************************************** */
 
@@ -30,15 +31,23 @@ let DUMMY:user[] = [u1,u2];
 
 /* ************************************************************** */
 
-export const getUsers = (_req:Request,res:Response,next:NextFunction) => {
+export const getUsers = (req:Request,res:Response,next:NextFunction) => {
     if(DUMMY.length === 0)
     {
-        return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(HTTP_RESPONSE_STATUS.OK).json({users: DUMMY});
 }
 
 export const login = (req:Request,res:Response,next:NextFunction) => {
+    const errors = validationResult(req);
+    console.log(errors);
+    
+    if(!errors.isEmpty())
+    {
+        return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
+
     const {email, password} = req.body;
 
     const targetUser = DUMMY.find(e => e.email === email);
@@ -47,10 +56,18 @@ export const login = (req:Request,res:Response,next:NextFunction) => {
         res.status(HTTP_RESPONSE_STATUS.OK).json();
     }
 
-    return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Unauthorized));
+    return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Unauthorized));
 }
 
 export const signup = (req:Request,res:Response,next:NextFunction) => {
+    const errors = validationResult(req);
+    console.log(errors);
+    
+    if(!errors.isEmpty())
+    {
+        return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
+
     const newUser = req.body as user;
     const alreadySigned = DUMMY.find( u => u.email === newUser.email);
 

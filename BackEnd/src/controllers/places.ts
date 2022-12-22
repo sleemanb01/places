@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 
 import { HttpError } from '../models/http-error';
 import { HTTP_RESPONSE_STATUS } from '../types/enums';
 import { place } from '../types/interfaces';
-import { ERROR_INVALIV_ID } from '../util/errorMessages';
+import { ERROR_INVALID_ID, ERROR_INVALID_INPUTS } from '../util/errorMessages';
+import { getCoordsForAddress } from '../util/location';
 
 /* ************************************************************** */
 
@@ -45,7 +47,7 @@ export const getPlaceById = (req:Request,res:Response,next:NextFunction) => {
     
     if(!place)
     {
-      return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
+      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
 
     res.status(HTTP_RESPONSE_STATUS.OK).json({place});
@@ -57,14 +59,32 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
     
     if(places.length === 0)
     {
-      return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
+      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
   
     res.status(HTTP_RESPONSE_STATUS.OK).json({places});
   }
 
-  export const createPlace = (req:Request,res:Response,next:NextFunction) => {
-    const { title, description, coordinate,address, creatorId } = req.body;
+  export const createPlace = async (req:Request,res:Response,next:NextFunction) => {
+
+    const errors = validationResult(req);
+    console.log(errors);
+    
+    if(!errors.isEmpty())
+    {
+        return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
+
+    const { title, description,address, creatorId } = req.body;
+    let coordinate;
+    
+    try{
+      coordinate = await getCoordsForAddress(address);
+    }
+    catch(error){
+      return next(error);
+    }
+
     const newPlace:place = {
       id:uuidv4(),
       title,
@@ -80,12 +100,21 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
   }
 
   export const updatePlace = (req:Request,res:Response,next:NextFunction) => {
+
+    const errors = validationResult(req);
+    console.log(errors);
+    
+    if(!errors.isEmpty())
+    {
+        return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
+    
     const { title, description } = req.body;
     const placeId = req.params.placeId;
     const updatedPlace = { ...DUMMY.find(p => p.id === placeId) };
     if(updatedPlace === undefined)
     {
-      return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
+      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
 
     const index = DUMMY.findIndex(p => p.id === placeId);
@@ -100,7 +129,11 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
 
   export const deletePlace = (req:Request,res:Response,next:NextFunction) => {
     const placeId = req.params.placeId;
-    DUMMY = DUMMY.filter(p => p.id !== placeId);
-
+    const targetPlace = DUMMY.find(p => p.id !== placeId);
+    if(targetPlace === undefined)
+    {
+      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
+    }
+    DUMMY = DUMMY.filter(e => e.id !== placeId);
     res.status(HTTP_RESPONSE_STATUS.OK).json();
   }

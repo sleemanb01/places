@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePlace = exports.updatePlace = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
+const express_validator_1 = require("express-validator");
 const uuid_1 = require("uuid");
 const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
 const errorMessages_1 = require("../util/errorMessages");
+const location_1 = require("../util/location");
 /* ************************************************************** */
 const p1 = {
     id: "1",
@@ -36,7 +38,7 @@ const getPlaceById = (req, res, next) => {
     const placeId = req.params.placeId;
     const place = DUMMY.find(p => p.id === placeId);
     if (!place) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALIV_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ place });
 };
@@ -45,13 +47,25 @@ const getPlacesByUserId = (req, res, next) => {
     const userId = req.params.userId;
     const places = DUMMY.filter(p => p.creatorId === userId);
     if (places.length === 0) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALIV_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ places });
 };
 exports.getPlacesByUserId = getPlacesByUserId;
-const createPlace = (req, res, next) => {
-    const { title, description, coordinate, address, creatorId } = req.body;
+const createPlace = async (req, res, next) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    console.log(errors);
+    if (!errors.isEmpty()) {
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
+    const { title, description, address, creatorId } = req.body;
+    let coordinate;
+    try {
+        coordinate = await (0, location_1.getCoordsForAddress)(address);
+    }
+    catch (error) {
+        return next(error);
+    }
     const newPlace = {
         id: (0, uuid_1.v4)(),
         title,
@@ -65,11 +79,16 @@ const createPlace = (req, res, next) => {
 };
 exports.createPlace = createPlace;
 const updatePlace = (req, res, next) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    console.log(errors);
+    if (!errors.isEmpty()) {
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
     const { title, description } = req.body;
     const placeId = req.params.placeId;
     const updatedPlace = { ...DUMMY.find(p => p.id === placeId) };
     if (updatedPlace === undefined) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALIV_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     const index = DUMMY.findIndex(p => p.id === placeId);
     updatedPlace.title = title;
@@ -80,7 +99,11 @@ const updatePlace = (req, res, next) => {
 exports.updatePlace = updatePlace;
 const deletePlace = (req, res, next) => {
     const placeId = req.params.placeId;
-    DUMMY = DUMMY.filter(p => p.id !== placeId);
+    const targetPlace = DUMMY.find(p => p.id !== placeId);
+    if (targetPlace === undefined) {
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+    }
+    DUMMY = DUMMY.filter(e => e.id !== placeId);
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json();
 };
 exports.deletePlace = deletePlace;
