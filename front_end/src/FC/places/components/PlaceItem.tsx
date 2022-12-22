@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Button } from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UIElements/Card";
 import Modal from "../../shared/components/UIElements/Modal";
-import { place } from "../../../typing/interfaces";
+import { place, user } from "../../../typing/interfaces";
 import { Map } from "../../shared/components/UIElements/Map";
 
 import "./PlaceItem.css";
