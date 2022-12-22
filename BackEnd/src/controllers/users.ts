@@ -1,0 +1,66 @@
+import { Request, Response, NextFunction } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+
+import { HttpError } from '../models/http-error';
+import { HTTP_RESPONSE_STATUS } from '../types/enums';
+import { user } from '../types/interfaces';
+import { ERROR_EMAIL_EXIST, ERROR_INVALIV_ID } from '../util/errorMessages';
+
+/* ************************************************************** */
+
+const u1 = {
+    id: "1",
+    name: "sleeman",
+    email: "sleeman.nabwani@gmail.com",
+    password: "100200300",
+    placesCount: 2,
+
+  };
+
+  const u2 = {
+    id: "2",
+    name: "ronen",
+    email: "ronen.nabwani@gmail.com",
+    password: "100200300",
+    placesCount: 4,
+
+  };
+
+let DUMMY:user[] = [u1,u2];
+
+/* ************************************************************** */
+
+export const getUsers = (_req:Request,res:Response,next:NextFunction) => {
+    if(DUMMY.length === 0)
+    {
+        return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
+    }
+    res.status(HTTP_RESPONSE_STATUS.OK).json({users: DUMMY});
+}
+
+export const login = (req:Request,res:Response,next:NextFunction) => {
+    const {email, password} = req.body;
+
+    const targetUser = DUMMY.find(e => e.email === email);
+    if(targetUser && targetUser.password === password)
+    {
+        res.status(HTTP_RESPONSE_STATUS.OK).json();
+    }
+
+    return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Unauthorized));
+}
+
+export const signup = (req:Request,res:Response,next:NextFunction) => {
+    const newUser = req.body as user;
+    const alreadySigned = DUMMY.find( u => u.email === newUser.email);
+
+    if(alreadySigned){
+        return next(new HttpError(ERROR_EMAIL_EXIST, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+    }
+
+    newUser.id = uuidv4();
+    newUser.placesCount = 0;
+    DUMMY.push(newUser);
+
+    res.status(HTTP_RESPONSE_STATUS.Created).json({user: newUser});
+}

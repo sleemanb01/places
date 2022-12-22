@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { HttpError } from '../models/http-error';
 import { HTTP_RESPONSE_STATUS } from '../types/enums';
 import { place } from '../types/interfaces';
+import { ERROR_INVALIV_ID } from '../util/errorMessages';
 
 /* ************************************************************** */
 
@@ -44,7 +45,7 @@ export const getPlaceById = (req:Request,res:Response,next:NextFunction) => {
     
     if(!place)
     {
-      return next(new HttpError('Could not find a place for the provided id.', HTTP_RESPONSE_STATUS.Not_Found));
+      return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
 
     res.status(HTTP_RESPONSE_STATUS.OK).json({place});
@@ -56,7 +57,7 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
     
     if(places.length === 0)
     {
-      return next(new HttpError('Could not find a place for the provided id.', HTTP_RESPONSE_STATUS.Not_Found));
+      return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
   
     res.status(HTTP_RESPONSE_STATUS.OK).json({places});
@@ -84,7 +85,7 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
     const updatedPlace = { ...DUMMY.find(p => p.id === placeId) };
     if(updatedPlace === undefined)
     {
-      return next(new HttpError('Could not find a place for the provided id.', HTTP_RESPONSE_STATUS.Not_Found));
+      return next(new HttpError(ERROR_INVALIV_ID, HTTP_RESPONSE_STATUS.Not_Found));
     }
 
     const index = DUMMY.findIndex(p => p.id === placeId);

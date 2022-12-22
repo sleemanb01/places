@@ -11,4 +11,5 @@ var HTTP_RESPONSE_STATUS;
     HTTP_RESPONSE_STATUS[HTTP_RESPONSE_STATUS["Unauthorized"] = 401] = "Unauthorized";
     HTTP_RESPONSE_STATUS[HTTP_RESPONSE_STATUS["Not_Found"] = 404] = "Not_Found";
     HTTP_RESPONSE_STATUS[HTTP_RESPONSE_STATUS["Internal_Server_Error"] = 500] = "Internal_Server_Error";
+    HTTP_RESPONSE_STATUS[HTTP_RESPONSE_STATUS["Unprocessable_Entity"] = 422] = "Unprocessable_Entity";
 })(HTTP_RESPONSE_STATUS = exports.HTTP_RESPONSE_STATUS || (exports.HTTP_RESPONSE_STATUS = {}));

@@ -4,6 +4,7 @@ exports.deletePlace = exports.updatePlace = exports.createPlace = exports.getPla
 const uuid_1 = require("uuid");
 const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
+const errorMessages_1 = require("../util/errorMessages");
 /* ************************************************************** */
 const p1 = {
     id: "1",
@@ -35,7 +36,7 @@ const getPlaceById = (req, res, next) => {
     const placeId = req.params.placeId;
     const place = DUMMY.find(p => p.id === placeId);
     if (!place) {
-        return next(new http_error_1.HttpError('Could not find a place for the provided id.', enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALIV_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ place });
 };
@@ -44,7 +45,7 @@ const getPlacesByUserId = (req, res, next) => {
     const userId = req.params.userId;
     const places = DUMMY.filter(p => p.creatorId === userId);
     if (places.length === 0) {
-        return next(new http_error_1.HttpError('Could not find a place for the provided id.', enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALIV_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ places });
 };
@@ -68,7 +69,7 @@ const updatePlace = (req, res, next) => {
     const placeId = req.params.placeId;
     const updatedPlace = { ...DUMMY.find(p => p.id === placeId) };
     if (updatedPlace === undefined) {
-        return next(new http_error_1.HttpError('Could not find a place for the provided id.', enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALIV_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     const index = DUMMY.findIndex(p => p.id === placeId);
     updatedPlace.title = title;

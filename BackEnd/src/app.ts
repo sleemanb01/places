@@ -5,19 +5,20 @@ import {placesRoutes} from './routes/places';
 import {usersRoutes} from './routes/users';
 import { HTTP_RESPONSE_STATUS } from './types/enums';
 import { HttpError } from './models/http-error';
+import { ERROR_UNDEFINED_ROUTE, ERROR_DEFAULT_MESSAGE } from './util/errorMessages';
 
 /* ************************************************************** */
 
 const app = express();
 const port = 5000;
-const ERROR_DEFAULT_MESSAGE = 'An unknow error occured!';
-const ERROR_UNDEFINED_ROUTE = 'Could not find route!';
+
 
 /* ************************************************************** */
 
 app.use(bodyParser.json());
 
 app.use('/api/places',placesRoutes);
+app.use('/api/users',usersRoutes);
 
 app.use((_req, _res, _next) => {
     const error = new HttpError(ERROR_UNDEFINED_ROUTE, HTTP_RESPONSE_STATUS.Bad_Request);
