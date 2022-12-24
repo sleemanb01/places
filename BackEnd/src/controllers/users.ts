@@ -1,83 +1,140 @@
-import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { validationResult } from 'express-validator'
+import { Request, Response, NextFunction } from "express";
+import { validationResult } from "express-validator";
 
-import { HttpError } from '../models/http-error';
-import { HTTP_RESPONSE_STATUS } from '../types/enums';
-import { IUser } from '../types/interfaces';
-import { ERROR_EMAIL_EXIST, ERROR_INVALID_DATA, ERROR_INVALID_INPUTS } from '../util/errorMessages';
-
-/* ************************************************************** */
-
-const u1 = {
-    id: "1",
-    name: "sleeman",
-    email: "sleeman.nabwani@gmail.com",
-    password: "100200300",
-    placesCount: 2,
-
-  };
-
-  const u2 = {
-    id: "2",
-    name: "ronen",
-    email: "ronen.nabwani@gmail.com",
-    password: "100200300",
-    placesCount: 4,
-
-  };
-
-let DUMMY:IUser[] = [u1,u2];
+import { HttpError } from "../models/http-error";
+import { HTTP_RESPONSE_STATUS } from "../types/enums";
+import {
+  ERROR_EMAIL_EXIST,
+  ERROR_INTERNAL_SERVER,
+  ERROR_INVALID_CREDENTIALS,
+  ERROR_INVALID_INPUTS,
+  ERROR_LOGIN,
+  ERROR_SIGNUP,
+} from "../util/errorMessages";
+import { UserModel } from "../models/user";
 
 /* ************************************************************** */
 
-export const getUsers = (req:Request,res:Response,next:NextFunction) => {
-    if(DUMMY.length === 0)
-    {
-        return next(new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Not_Found));
-    }
-    res.status(HTTP_RESPONSE_STATUS.OK).json({users: DUMMY});
-}
+export const getUsers = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let users;
+  try {
+    users = await UserModel.find({}, "-password");
+  } catch {
+    const error = new HttpError(
+      ERROR_INTERNAL_SERVER,
+      HTTP_RESPONSE_STATUS.Internal_Server_Error
+    );
+    return next(error);
+  }
 
-export const login = (req:Request,res:Response,next:NextFunction) => {
-    const errors = validationResult(req);
-    console.log(errors);
-    
-    if(!errors.isEmpty())
-    {
-        return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
-    }
+  res
+    .status(HTTP_RESPONSE_STATUS.OK)
+    .json({ users: users.map((user) => user.toObject({ getters: true })) });
+};
 
-    const {email, password} = req.body;
+/* ************************************************************** */
 
-    const targetUser = DUMMY.find(e => e.email === email);
-    if(targetUser && targetUser.password === password)
-    {
-        res.status(HTTP_RESPONSE_STATUS.OK).json();
-    }
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
+  console.log(errors);
 
-    return next(new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Unauthorized));
-}
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError(
+        ERROR_INVALID_INPUTS,
+        HTTP_RESPONSE_STATUS.Unprocessable_Entity
+      )
+    );
+  }
 
-export const signup = (req:Request,res:Response,next:NextFunction) => {
-    const errors = validationResult(req);
-    console.log(errors);
-    
-    if(!errors.isEmpty())
-    {
-        return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
-    }
+  const { email, password } = req.body;
 
-    const newUser = req.body as IUser;
-    const alreadySigned = DUMMY.find( u => u.email === newUser.email);
+  let targetUser;
 
-    if(alreadySigned){
-        return next(new HttpError(ERROR_EMAIL_EXIST, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
-    }
+  try {
+    targetUser = await UserModel.findOne({ email: email });
+  } catch {
+    return next(
+      new HttpError(ERROR_LOGIN, HTTP_RESPONSE_STATUS.Internal_Server_Error)
+    );
+  }
 
-    newUser.id = uuidv4();
-    newUser.placesCount = 0;
-    DUMMY.push(newUser);
+  if (!targetUser || targetUser.password !== password) {
+    const error = new HttpError(
+      ERROR_INVALID_CREDENTIALS,
+      HTTP_RESPONSE_STATUS.Unauthorized
+    );
 
-    res.status(HTTP_RESPONSE_STATUS.Created).json({user: newUser});
-}
+    return next(error);
+  }
+
+  res.json({ message: "Logged in!" });
+};
+
+/* ************************************************************** */
+
+export const signup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError(
+        ERROR_INVALID_INPUTS,
+        HTTP_RESPONSE_STATUS.Unprocessable_Entity
+      )
+    );
+  }
+
+  const { name, email, password, imageUrl } = req.body;
+
+  let alreadySigned;
+
+  try {
+    alreadySigned = await UserModel.findOne({ email: email });
+  } catch {
+    return next(
+      new HttpError(ERROR_SIGNUP, HTTP_RESPONSE_STATUS.Internal_Server_Error)
+    );
+  }
+
+  if (alreadySigned) {
+    return next(
+      new HttpError(
+        ERROR_EMAIL_EXIST,
+        HTTP_RESPONSE_STATUS.Unprocessable_Entity
+      )
+    );
+  }
+
+  let createdUser = new UserModel({
+    name,
+    email,
+    password,
+    imageUrl,
+    places: [],
+  });
+
+  try {
+    await createdUser.save();
+  } catch {
+    const error = new HttpError(
+      ERROR_INTERNAL_SERVER,
+      HTTP_RESPONSE_STATUS.Internal_Server_Error
+    );
+    return next(error);
+  }
+
+  res.status(HTTP_RESPONSE_STATUS.Created).json({ user: createdUser });
+};

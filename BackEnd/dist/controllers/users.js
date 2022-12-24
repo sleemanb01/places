@@ -1,63 +1,79 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signup = exports.login = exports.getUsers = void 0;
-const uuid_1 = require("uuid");
 const express_validator_1 = require("express-validator");
 const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
 const errorMessages_1 = require("../util/errorMessages");
+const user_1 = require("../models/user");
 /* ************************************************************** */
-const u1 = {
-    id: "1",
-    name: "sleeman",
-    email: "sleeman.nabwani@gmail.com",
-    password: "100200300",
-    placesCount: 2,
-};
-const u2 = {
-    id: "2",
-    name: "ronen",
-    email: "ronen.nabwani@gmail.com",
-    password: "100200300",
-    placesCount: 4,
-};
-let DUMMY = [u1, u2];
-/* ************************************************************** */
-const getUsers = (req, res, next) => {
-    if (DUMMY.length === 0) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+const getUsers = async (_req, res, next) => {
+    let users;
+    try {
+        users = await user_1.UserModel.find({}, "-password");
     }
-    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ users: DUMMY });
+    catch (_a) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    res
+        .status(enums_1.HTTP_RESPONSE_STATUS.OK)
+        .json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 exports.getUsers = getUsers;
-const login = (req, res, next) => {
+/* ************************************************************** */
+const login = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     console.log(errors);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
     const { email, password } = req.body;
-    const targetUser = DUMMY.find(e => e.email === email);
-    if (targetUser && targetUser.password === password) {
-        res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json();
+    let targetUser;
+    try {
+        targetUser = await user_1.UserModel.findOne({ email: email });
     }
-    return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Unauthorized));
+    catch (_a) {
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_LOGIN, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
+    }
+    if (!targetUser || targetUser.password !== password) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_CREDENTIALS, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
+        return next(error);
+    }
+    res.json({ message: "Logged in!" });
 };
 exports.login = login;
-const signup = (req, res, next) => {
+/* ************************************************************** */
+const signup = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
-    const newUser = req.body;
-    const alreadySigned = DUMMY.find(u => u.email === newUser.email);
+    const { name, email, password, imageUrl } = req.body;
+    let alreadySigned;
+    try {
+        alreadySigned = await user_1.UserModel.findOne({ email: email });
+    }
+    catch (_a) {
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_SIGNUP, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
+    }
     if (alreadySigned) {
         return next(new http_error_1.HttpError(errorMessages_1.ERROR_EMAIL_EXIST, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
-    newUser.id = (0, uuid_1.v4)();
-    newUser.placesCount = 0;
-    DUMMY.push(newUser);
-    res.status(enums_1.HTTP_RESPONSE_STATUS.Created).json({ user: newUser });
+    let createdUser = new user_1.UserModel({
+        name,
+        email,
+        password,
+        imageUrl,
+        places: [],
+    });
+    try {
+        await createdUser.save();
+    }
+    catch (_b) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    res.status(enums_1.HTTP_RESPONSE_STATUS.Created).json({ user: createdUser });
 };
 exports.signup = signup;
