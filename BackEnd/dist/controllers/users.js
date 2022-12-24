@@ -25,7 +25,7 @@ let DUMMY = [u1, u2];
 /* ************************************************************** */
 const getUsers = (req, res, next) => {
     if (DUMMY.length === 0) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ users: DUMMY });
 };
@@ -41,7 +41,7 @@ const login = (req, res, next) => {
     if (targetUser && targetUser.password === password) {
         res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json();
     }
-    return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Unauthorized));
+    return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Unauthorized));
 };
 exports.login = login;
 const signup = (req, res, next) => {

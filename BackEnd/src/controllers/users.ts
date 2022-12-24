@@ -4,8 +4,8 @@ import { validationResult } from 'express-validator'
 
 import { HttpError } from '../models/http-error';
 import { HTTP_RESPONSE_STATUS } from '../types/enums';
-import { user } from '../types/interfaces';
-import { ERROR_EMAIL_EXIST, ERROR_INVALID_ID, ERROR_INVALID_INPUTS } from '../util/errorMessages';
+import { IUser } from '../types/interfaces';
+import { ERROR_EMAIL_EXIST, ERROR_INVALID_DATA, ERROR_INVALID_INPUTS } from '../util/errorMessages';
 
 /* ************************************************************** */
 
@@ -27,14 +27,14 @@ const u1 = {
 
   };
 
-let DUMMY:user[] = [u1,u2];
+let DUMMY:IUser[] = [u1,u2];
 
 /* ************************************************************** */
 
 export const getUsers = (req:Request,res:Response,next:NextFunction) => {
     if(DUMMY.length === 0)
     {
-        return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Not_Found));
     }
     res.status(HTTP_RESPONSE_STATUS.OK).json({users: DUMMY});
 }
@@ -56,7 +56,7 @@ export const login = (req:Request,res:Response,next:NextFunction) => {
         res.status(HTTP_RESPONSE_STATUS.OK).json();
     }
 
-    return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Unauthorized));
+    return next(new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Unauthorized));
 }
 
 export const signup = (req:Request,res:Response,next:NextFunction) => {
@@ -68,7 +68,7 @@ export const signup = (req:Request,res:Response,next:NextFunction) => {
         return next(new HttpError(ERROR_INVALID_INPUTS, HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
 
-    const newUser = req.body as user;
+    const newUser = req.body as IUser;
     const alreadySigned = DUMMY.find( u => u.email === newUser.email);
 
     if(alreadySigned){

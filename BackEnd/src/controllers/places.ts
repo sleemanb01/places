@@ -1,69 +1,59 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { v4 as uuidv4 } from 'uuid';
-
 import { HttpError } from '../models/http-error';
+import { PlaceModel } from '../models/place';
 import { HTTP_RESPONSE_STATUS } from '../types/enums';
-import { place } from '../types/interfaces';
-import { ERROR_INVALID_ID, ERROR_INVALID_INPUTS } from '../util/errorMessages';
+import { IPlace } from '../types/interfaces';
+import { ERROR_DELETE, ERROR_INTERNAL_SERVER, ERROR_INVALID_DATA, ERROR_INVALID_INPUTS } from '../util/errorMessages';
 import { getCoordsForAddress } from '../util/location';
 
 /* ************************************************************** */
 
-const p1 = {
-    id: "1",
-    creatorId: "1",
-    title: "Empire state building",
-    description: "one of the most popular sky scrapers on the world",
-    address: "20 W 34th st, New York, NY 10001",
-    coordinate: {
-      lat: 40.7484405,
-      lng: -73.9878584,
-    },
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg",
-  };
-
-  const p2:place = {
-    id: "2",
-    creatorId: "1",
-    title: "Azrieli Center",
-    description: "one of the most popular building in israel",
-    address: "Derech Menachem Begin, Tel Aviv-Yafo",
-    coordinate: {
-      lat: 32.0740769,
-      lng: 34.7900141,
-    },
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg",
-  };
-let DUMMY:place[] = [p1,p2];
-
-/* ************************************************************** */
-
-export const getPlaceById = (req:Request,res:Response,next:NextFunction) => {
+export const getPlaceById = async (req:Request,res:Response,next:NextFunction) => {
     const placeId = req.params.placeId;
-    const place = DUMMY.find(p => p.id === placeId);
+    let place;
+
+    try {
+      place = await PlaceModel.findById(placeId).exec();
+    } catch {
+      const error = new HttpError(ERROR_INVALID_DATA,HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
+    }
     
     if(!place)
     {
-      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
+      const error = new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Not_Found);
+      return next(error);
     }
-
-    res.status(HTTP_RESPONSE_STATUS.OK).json({place});
+ 
+    res.status(HTTP_RESPONSE_STATUS.OK).json({place: place.toObject( { getters: true } )});
 }
 
-export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) => {
+/* ************************************************************** */
+
+export const getPlacesByUserId = async (req:Request,res:Response,next:NextFunction) => {
     const userId = req.params.userId;
-    const places = DUMMY.filter(p => p.creatorId === userId);
+    let places = [];
+
+    try{
+
+      places = await PlaceModel.find({ creatorId: userId }).exec();
+
+    } catch{
+      const error = new HttpError(ERROR_INVALID_DATA,HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
+    }
     
     if(places.length === 0)
     {
-      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
+      const error = new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Not_Found);
+      return next(error);
     }
   
-    res.status(HTTP_RESPONSE_STATUS.OK).json({places});
+    res.status(HTTP_RESPONSE_STATUS.OK).json({places : places.map(place => place.toObject({ getters: true }))});
   }
+
+  /* ************************************************************** */
 
   export const createPlace = async (req:Request,res:Response,next:NextFunction) => {
 
@@ -85,24 +75,30 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
       return next(error);
     }
 
-    const newPlace:place = {
-      id:uuidv4(),
+    const newPlace = new PlaceModel({
       title,
       description,
-      coordinate,
       address,
+      coordinate,
       creatorId,
-    };
+    });
 
-    DUMMY.push(newPlace);
+    try{
+      await newPlace.save();
+    }
+    catch{
+      const error = new HttpError(ERROR_INTERNAL_SERVER , HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
+    }
 
     res.status(HTTP_RESPONSE_STATUS.Created).json({place:newPlace});
   }
 
-  export const updatePlace = (req:Request,res:Response,next:NextFunction) => {
+  /* ************************************************************** */
+
+  export const updatePlace = async (req:Request,res:Response,next:NextFunction) => {
 
     const errors = validationResult(req);
-    console.log(errors);
     
     if(!errors.isEmpty())
     {
@@ -111,29 +107,53 @@ export const getPlacesByUserId = (req:Request,res:Response,next:NextFunction) =>
     
     const { title, description } = req.body;
     const placeId = req.params.placeId;
-    const updatedPlace = { ...DUMMY.find(p => p.id === placeId) };
-    if(updatedPlace === undefined)
-    {
-      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
+    let place; 
+
+    try {
+      place = await PlaceModel.findById(placeId);
+    } catch {
+      const error = new HttpError(ERROR_INTERNAL_SERVER , HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
     }
 
-    const index = DUMMY.findIndex(p => p.id === placeId);
-    updatedPlace.title = title;
-    updatedPlace.description = description;
+    if(!place)
+    {
+      return next(new HttpError(ERROR_INVALID_DATA, HTTP_RESPONSE_STATUS.Not_Found));
+    }
 
-    DUMMY[index] = updatedPlace as place;
+    place.title = title;
+    place.description = description;
 
-    res.status(HTTP_RESPONSE_STATUS.OK).json({place:updatedPlace});
-    
+    try {
+      await place.save();
+    } catch {
+      const error = new HttpError(ERROR_INTERNAL_SERVER , HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
+    }
+
+    res.status(HTTP_RESPONSE_STATUS.OK).json({place:place.toObject({ getters: true })});
   }
 
-  export const deletePlace = (req:Request,res:Response,next:NextFunction) => {
+  /* ************************************************************** */
+
+  export const deletePlace = async (req:Request,res:Response,next:NextFunction) => {
     const placeId = req.params.placeId;
-    const targetPlace = DUMMY.find(p => p.id !== placeId);
-    if(targetPlace === undefined)
-    {
-      return next(new HttpError(ERROR_INVALID_ID, HTTP_RESPONSE_STATUS.Not_Found));
+    let targetPlace;
+
+    try {
+      targetPlace = await PlaceModel.findById(placeId);
+    } catch {
+      const error = new HttpError(ERROR_DELETE,HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
     }
-    DUMMY = DUMMY.filter(e => e.id !== placeId);
-    res.status(HTTP_RESPONSE_STATUS.OK).json();
+
+    try {
+      
+      await targetPlace?.remove();
+    } catch {
+      const error = new HttpError(ERROR_DELETE,HTTP_RESPONSE_STATUS.Internal_Server_Error);
+      return next(error);
+    }
+
+    res.status(HTTP_RESPONSE_STATUS.OK);
   }

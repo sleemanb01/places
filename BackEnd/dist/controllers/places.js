@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePlace = exports.updatePlace = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
 const express_validator_1 = require("express-validator");
-const uuid_1 = require("uuid");
 const http_error_1 = require("../models/http-error");
+const place_1 = require("../models/place");
 const enums_1 = require("../types/enums");
 const errorMessages_1 = require("../util/errorMessages");
 const location_1 = require("../util/location");
@@ -34,24 +34,42 @@ const p2 = {
 };
 let DUMMY = [p1, p2];
 /* ************************************************************** */
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
     const placeId = req.params.placeId;
-    const place = DUMMY.find(p => p.id === placeId);
-    if (!place) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+    let place;
+    try {
+        place = await place_1.placeModel.findById(placeId).exec();
     }
-    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ place });
+    catch (_a) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    if (!place) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+        return next(error);
+    }
+    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ place: place.toObject({ getters: true }) });
 };
 exports.getPlaceById = getPlaceById;
-const getPlacesByUserId = (req, res, next) => {
+/* ************************************************************** */
+const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
-    const places = DUMMY.filter(p => p.creatorId === userId);
-    if (places.length === 0) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+    let places = [];
+    try {
+        places = await place_1.placeModel.find({ creatorId: userId }).exec();
     }
-    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ places });
+    catch (_a) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    if (places.length === 0) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+        return next(error);
+    }
+    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ places: places.map(place => place.toObject({ getters: true })) });
 };
 exports.getPlacesByUserId = getPlacesByUserId;
+/* ************************************************************** */
 const createPlace = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     console.log(errors);
@@ -66,44 +84,72 @@ const createPlace = async (req, res, next) => {
     catch (error) {
         return next(error);
     }
-    const newPlace = {
-        id: (0, uuid_1.v4)(),
+    const newPlace = new place_1.placeModel({
         title,
         description,
-        coordinate,
         address,
+        coordinate,
         creatorId,
-    };
-    DUMMY.push(newPlace);
+    });
+    try {
+        await newPlace.save();
+    }
+    catch (_a) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
     res.status(enums_1.HTTP_RESPONSE_STATUS.Created).json({ place: newPlace });
 };
 exports.createPlace = createPlace;
-const updatePlace = (req, res, next) => {
+/* ************************************************************** */
+const updatePlace = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
     const { title, description } = req.body;
     const placeId = req.params.placeId;
-    const updatedPlace = { ...DUMMY.find(p => p.id === placeId) };
-    if (updatedPlace === undefined) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+    let place;
+    try {
+        place = await place_1.placeModel.findById(placeId);
     }
-    const index = DUMMY.findIndex(p => p.id === placeId);
-    updatedPlace.title = title;
-    updatedPlace.description = description;
-    DUMMY[index] = updatedPlace;
-    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ place: updatedPlace });
+    catch (_a) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    if (!place) {
+        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+    }
+    place.title = title;
+    place.description = description;
+    try {
+        await place.save();
+    }
+    catch (_b) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ place: place.toObject({ getters: true }) });
 };
 exports.updatePlace = updatePlace;
-const deletePlace = (req, res, next) => {
+/* ************************************************************** */
+const deletePlace = async (req, res, next) => {
     const placeId = req.params.placeId;
-    const targetPlace = DUMMY.find(p => p.id !== placeId);
-    if (targetPlace === undefined) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_ID, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+    let targetPlace;
+    try {
+        targetPlace = await place_1.placeModel.findById(placeId);
     }
-    DUMMY = DUMMY.filter(e => e.id !== placeId);
-    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json();
+    catch (_a) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    try {
+        await (targetPlace === null || targetPlace === void 0 ? void 0 : targetPlace.remove());
+    }
+    catch (_b) {
+        const error = new http_error_1.HttpError(errorMessages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        return next(error);
+    }
+    res.status(enums_1.HTTP_RESPONSE_STATUS.OK);
 };
 exports.deletePlace = deletePlace;

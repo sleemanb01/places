@@ -7,11 +7,14 @@ import { HTTP_RESPONSE_STATUS } from './types/enums';
 import { ERROR_UNDEFINED_ROUTE, ERROR_UNKNOWN_ERROR } from './util/errorMessages';
 import mongoose from 'mongoose'
 
+const PORT = 5000;
+const URI = 'mongodb+srv://placesAdmin:vutbcutbhqaz951@cluster0.vacgxjp.mongodb.net/places?retryWrites=true&w=majority';
+
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/api/places', placesRoutes); // => /api/places...
+app.use('/api/places', placesRoutes);
 app.use('/api/users', usersRoutes);
 
 app.use((_req, _res, _next) => {
@@ -27,9 +30,9 @@ app.use((error:HttpError, _req:Request, res:Response, next:NextFunction) => {
   res.json({message: error.message || ERROR_UNKNOWN_ERROR});
 });
 
-mongoose.connect('mongodb+srv://sleemanb:vutbcutbhqaz951@cluster0.vacgxjp.mongodb.net/places?retryWrites=true&w=majority')
+mongoose.connect(URI)
 .then(() => {
-    app.listen(5000);
+    app.listen(PORT);
 })
 .catch((err) => {
     console.log(err);

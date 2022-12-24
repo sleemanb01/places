@@ -1,17 +1,17 @@
 import { coordinates } from "./types";
 
-export interface user {
+export interface IUser {
     id?: string;
     name: string;
     email: string;
     password?: string;
     image?: string;
-    placesCount: number;
+    places: string;
   }
   
-  export interface place {
+  export interface IPlace {
     id?: string;
-    creatorId: user['id'];
+    creatorId: IUser['id'];
     title: string;
     description: string;
     address: string;
