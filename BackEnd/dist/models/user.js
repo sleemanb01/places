@@ -13,7 +13,7 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: MINLENGTH },
     imageUrl: { type: String, required: true },
-    places: [{ type: mongoose_1.default.Types.ObjectId, required: true, ref: "Place" }],
+    places: [{ type: Schema.Types.ObjectId, required: true, ref: "Place" }],
 });
 userSchema.plugin(mongoose_unique_validator_1.default);
 exports.UserModel = mongoose_1.default.model("User", userSchema);

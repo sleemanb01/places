@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlaceModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const Schema = mongoose_1.default.Schema;
 const placeSchema = new Schema({
@@ -17,4 +16,4 @@ const placeSchema = new Schema({
         lng: { type: Number, required: true },
     },
 });
-exports.PlaceModel = mongoose_1.default.model("Place", placeSchema);
+exports.default = mongoose_1.default.model("Place", placeSchema);

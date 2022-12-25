@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
-import mongoose from "mongoose";
+import mongoose, { HydratedDocument, Model, Query, Schema } from "mongoose";
 
+import { IUser } from "../models/user.model";
+import Place from "../models/place.model";
 import { HttpError } from "../models/http-error";
-import { PlaceModel } from "../models/place";
-import { UserModel } from "../models/user";
 import { HTTP_RESPONSE_STATUS } from "../types/enums";
 import {
   ERROR_DELETE,
@@ -26,7 +26,7 @@ export const getPlaceById = async (
   let place;
 
   try {
-    place = await PlaceModel.findById(placeId).exec();
+    place = await Place.findById(placeId).exec();
   } catch {
     const error = new HttpError(
       ERROR_INVALID_DATA,
@@ -59,7 +59,7 @@ export const getPlacesByUserId = async (
   let places = [];
 
   try {
-    places = await PlaceModel.find({ creatorId: userId }).exec();
+    places = await Place.find({ creatorId: userId }).exec();
   } catch {
     const error = new HttpError(
       ERROR_INVALID_DATA,
@@ -109,10 +109,10 @@ export const createPlace = async (
     return next(error);
   }
 
-  let targetUser;
+  let targetUser: IUser | null;
 
   try {
-    targetUser = await UserModel.findById(creatorId);
+    targetUser = await Place.findById(creatorId);
   } catch {
     return next(
       new HttpError(ERROR_LOGIN, HTTP_RESPONSE_STATUS.Internal_Server_Error)
@@ -127,7 +127,7 @@ export const createPlace = async (
     return next(error);
   }
 
-  const newPlace = new PlaceModel({
+  const newPlace = new Place({
     creatorId,
     title,
     description,
@@ -140,7 +140,7 @@ export const createPlace = async (
     const sess = await mongoose.startSession();
     sess.startTransaction();
     await newPlace.save({ session: sess });
-    targetUser!.places.push(newPlace);
+    targetUser.places.push(newPlace);
     await targetUser!.save({ session: sess });
     sess.commitTransaction();
   } catch {
@@ -177,7 +177,7 @@ export const updatePlace = async (
   let place;
 
   try {
-    place = await PlaceModel.findById(placeId);
+    place = await Place.findById(placeId);
   } catch {
     const error = new HttpError(
       ERROR_INTERNAL_SERVER,
@@ -221,7 +221,9 @@ export const deletePlace = async (
   let targetPlace;
 
   try {
-    targetPlace = await PlaceModel.findById(placeId);
+    targetPlace = await Place.findById(placeId).populate<{ creatorId: IUser }>(
+      "creatorId"
+    );
   } catch {
     const error = new HttpError(
       ERROR_DELETE,
@@ -230,8 +232,20 @@ export const deletePlace = async (
     return next(error);
   }
 
+  if (!targetPlace) {
+    const error = new HttpError(
+      ERROR_INVALID_DATA,
+      HTTP_RESPONSE_STATUS.Not_Found
+    );
+    return next(error);
+  }
+
   try {
-    await targetPlace?.remove();
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await targetPlace!.remove({ session: sess });
+    targetPlace.creatorId.places.pull(targetPlace);
+    sess.commitTransaction();
   } catch {
     const error = new HttpError(
       ERROR_DELETE,

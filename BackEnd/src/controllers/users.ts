@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 
+import User from "../models/user.model";
 import { HttpError } from "../models/http-error";
 import { HTTP_RESPONSE_STATUS } from "../types/enums";
 import {
@@ -11,7 +12,6 @@ import {
   ERROR_LOGIN,
   ERROR_SIGNUP,
 } from "../util/errorMessages";
-import { UserModel } from "../models/user";
 
 /* ************************************************************** */
 
@@ -22,7 +22,7 @@ export const getUsers = async (
 ) => {
   let users;
   try {
-    users = await UserModel.find({}, "-password");
+    users = await User.find({}, "-password");
   } catch {
     const error = new HttpError(
       ERROR_INTERNAL_SERVER,
@@ -60,7 +60,7 @@ export const login = async (
   let targetUser;
 
   try {
-    targetUser = await UserModel.findOne({ email: email });
+    targetUser = await User.findOne({ email: email });
   } catch {
     return next(
       new HttpError(ERROR_LOGIN, HTTP_RESPONSE_STATUS.Internal_Server_Error)
@@ -102,7 +102,7 @@ export const signup = async (
   let alreadySigned;
 
   try {
-    alreadySigned = await UserModel.findOne({ email: email });
+    alreadySigned = await User.findOne({ email: email });
   } catch {
     return next(
       new HttpError(ERROR_SIGNUP, HTTP_RESPONSE_STATUS.Internal_Server_Error)
@@ -118,7 +118,7 @@ export const signup = async (
     );
   }
 
-  let createdUser = new UserModel({
+  let createdUser = new User({
     name,
     email,
     password,
