@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { ICtx, user } from "../typing/interfaces";
+import { ICtx, IUser } from "../typing/interfaces";
 
 export const AuthContext = createContext<ICtx>({
   isLoggedIn: false,
@@ -10,13 +10,13 @@ export const AuthContext = createContext<ICtx>({
 });
 
 export function AuthContextProvider({ children }: { children: JSX.Element }) {
-  const [auth, setAuth] = useState<user | undefined>(undefined);
+  const [auth, setAuth] = useState<IUser | undefined>(undefined);
 
-  function login(user: user) {
+  function login(user: IUser) {
     setAuth(user);
   }
 
-  function updatePerson(user: user) {
+  function updatePerson(user: IUser) {
     setAuth(user);
   }
 

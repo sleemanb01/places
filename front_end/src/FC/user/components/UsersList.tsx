@@ -1,10 +1,10 @@
 import Card from "../../shared/components/UIElements/Card";
-import { user } from "../../../typing/interfaces";
+import { IUser } from "../../../typing/interfaces";
 import { UserItem } from "./UserItem";
 
 import "./UsersList.css";
 
-export function UsersList({ users }: { users: user[] }) {
+export function UsersList({ users }: { users: IUser[] }) {
   if (users.length === 0) {
     return (
       <div className="center">

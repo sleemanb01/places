@@ -29,7 +29,7 @@ const UserSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: MINLENGTH },
-    imageUrl: { type: String, required: true },
+    imageUrl: { type: String, required: false },
     places: [{ type: mongoose_1.Schema.Types.ObjectId, required: true, ref: "Place" }],
 });
 exports.default = mongoose_1.default.model("User", UserSchema);

@@ -1,4 +1,4 @@
-import { user } from "../../../typing/interfaces";
+import { IUser } from "../../../typing/interfaces";
 import { UsersList } from "../components/UsersList";
 
 export function Users() {
@@ -11,7 +11,7 @@ export function Users() {
     placesCount: 4,
   };
 
-  const USERS: user[] = [dUser1];
+  const USERS: IUser[] = [dUser1];
 
   return <UsersList users={USERS} />;
 }

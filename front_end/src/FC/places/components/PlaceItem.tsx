@@ -2,13 +2,13 @@ import React, { useContext, useState } from "react";
 import { Button } from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UIElements/Card";
 import Modal from "../../shared/components/UIElements/Modal";
-import { place, user } from "../../../typing/interfaces";
+import { IPlace } from "../../../typing/interfaces";
 import { Map } from "../../shared/components/UIElements/Map";
 
 import "./PlaceItem.css";
 import { AuthContext } from "../../../hooks/auth-context";
 
-export function PlaceItem({ place }: { place: place }) {
+export function PlaceItem({ place }: { place: IPlace }) {
   const ctx = useContext(AuthContext);
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);

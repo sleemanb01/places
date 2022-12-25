@@ -1,15 +1,15 @@
 import { coordinate } from "./types";
 
-export interface user {
+export interface IUser {
   id?: number;
-  name: string;
+  name?: string;
   email: string;
   password?: string;
   image?: string;
-  placesCount: number;
+  placesCount?: number;
 }
 
-export interface place {
+export interface IPlace {
   id: number;
   creatorId: number;
   title: string;
@@ -21,8 +21,8 @@ export interface place {
 
 export interface ICtx {
   isLoggedIn: boolean;
-  user: user | undefined;
-  login: (user: user) => void;
-  updatePerson: (user: user) => void;
+  user: IUser | undefined;
+  login: (user: IUser) => void;
+  updatePerson: (user: IUser) => void;
   logout: () => void;
 }

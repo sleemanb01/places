@@ -12,9 +12,10 @@ import {
 import { Button } from "../../shared/components/FormElements/Button";
 import { Input } from "../../shared/components/FormElements/Input";
 import Card from "../../shared/components/UIElements/Card";
-import { user } from "../../../typing/interfaces";
+import { IUser } from "../../../typing/interfaces";
 
 import "./Auth.css";
+import { login, signUp } from "../../../util/axios";
 
 export function Auth() {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -51,16 +52,26 @@ export function Auth() {
     setIsLoginMode((prevMode) => !prevMode);
   };
 
-  const authSubmitHandler = (event: React.FormEvent) => {
+  const authSubmitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
-    const user: user = {
-      id: 1,
-      email: (formState.inputs.email as reducerInputState).value,
-      password: (formState.inputs.password as reducerInputState).value,
-      name: "sleeman",
-      placesCount: 2,
+
+    let res = false;
+    let user: IUser = {
+      email: formState.inputs.email!.value,
+      password: formState.inputs.password!.value,
     };
-    ctx.login(user);
+
+    if (isLoginMode) {
+      res = await login(user);
+    } else {
+      user = { ...user, name: formState.inputs.name!.value };
+
+      res = await signUp(user);
+    }
+
+    if (res) {
+      ctx.login(user);
+    }
   };
 
   return (

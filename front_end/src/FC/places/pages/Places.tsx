@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { place } from "../../../typing/interfaces";
+import { IPlace } from "../../../typing/interfaces";
 import { PlacesList } from "../components/PlacesList";
 
 export function Places() {
@@ -31,7 +31,7 @@ export function Places() {
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg",
   };
 
-  const DUMMY_PLACES: place[] = [P1, P2];
+  const DUMMY_PLACES: IPlace[] = [P1, P2];
   const userId: number = parseInt(useParams().userId as string);
 
   return (

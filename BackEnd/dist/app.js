@@ -15,6 +15,12 @@ const PORT = 5000;
 const URI = "mongodb+srv://placesAdmin:vutbcutbhqaz951@cluster0.vacgxjp.mongodb.net/places?retryWrites=true&w=majority";
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+    next();
+});
 app.use("/api/places", places_1.placesRoutes);
 app.use("/api/users", users_1.usersRoutes);
 app.use((_req, _res, _next) => {

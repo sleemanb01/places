@@ -1,12 +1,12 @@
 import Card from "../../shared/components/UIElements/Card";
-import { place } from "../../../typing/interfaces";
+import { IPlace } from "../../../typing/interfaces";
 import { PlaceItem } from "./PlaceItem";
 
 import "./PlacesList.css";
 
 import { Button } from "../../shared/components/FormElements/Button";
 
-export function PlacesList({ places }: { places: place[] }) {
+export function PlacesList({ places }: { places: IPlace[] }) {
   if (places.length === 0) {
     return (
       <div className="place-list center">
