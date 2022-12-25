@@ -6,10 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePlace = exports.updatePlace = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
 const express_validator_1 = require("express-validator");
 const mongoose_1 = __importDefault(require("mongoose"));
+const user_model_1 = __importDefault(require("../models/user.model"));
 const place_model_1 = __importDefault(require("../models/place.model"));
 const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
-const errorMessages_1 = require("../util/errorMessages");
+const messages_1 = require("../util/messages");
 const location_1 = require("../util/location");
 /* ************************************************************** */
 const getPlaceById = async (req, res, next) => {
@@ -19,11 +20,11 @@ const getPlaceById = async (req, res, next) => {
         place = await place_model_1.default.findById(placeId).exec();
     }
     catch (_a) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
     if (!place) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
         return next(error);
     }
     res
@@ -34,21 +35,21 @@ exports.getPlaceById = getPlaceById;
 /* ************************************************************** */
 const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
-    let places = [];
+    let userWPlaces;
     try {
-        places = await place_model_1.default.find({ creatorId: userId }).exec();
+        userWPlaces = await user_model_1.default.findById({ creatorId: userId });
     }
     catch (_a) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
-    if (places.length === 0) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+    if (!userWPlaces || userWPlaces.places.length === 0) {
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
         return next(error);
     }
-    res
-        .status(enums_1.HTTP_RESPONSE_STATUS.OK)
-        .json({ places: places.map((place) => place.toObject({ getters: true })) });
+    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({
+        places: userWPlaces.places.map((place) => place.toObject({ getters: true })),
+    });
 };
 exports.getPlacesByUserId = getPlacesByUserId;
 /* ************************************************************** */
@@ -56,7 +57,7 @@ const createPlace = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     console.log(errors);
     if (!errors.isEmpty()) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+        return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
     const { title, description, address, creatorId, imageUrl } = req.body;
     let coordinate;
@@ -71,10 +72,10 @@ const createPlace = async (req, res, next) => {
         targetUser = await place_model_1.default.findById(creatorId);
     }
     catch (_a) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_LOGIN, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
+        return next(new http_error_1.HttpError(messages_1.ERROR_LOGIN, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
     }
     if (!targetUser) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
         return next(error);
     }
     const newPlace = new place_model_1.default({
@@ -94,7 +95,7 @@ const createPlace = async (req, res, next) => {
         sess.commitTransaction();
     }
     catch (_b) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
     res.status(enums_1.HTTP_RESPONSE_STATUS.Created).json({ place: newPlace });
@@ -104,7 +105,7 @@ exports.createPlace = createPlace;
 const updatePlace = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
+        return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
     const { title, description } = req.body;
     const placeId = req.params.placeId;
@@ -113,11 +114,11 @@ const updatePlace = async (req, res, next) => {
         place = await place_model_1.default.findById(placeId);
     }
     catch (_a) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
     if (!place) {
-        return next(new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
+        return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
     place.title = title;
     place.description = description;
@@ -125,7 +126,7 @@ const updatePlace = async (req, res, next) => {
         await place.save();
     }
     catch (_b) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
     res
@@ -141,11 +142,11 @@ const deletePlace = async (req, res, next) => {
         targetPlace = await place_model_1.default.findById(placeId).populate("creatorId");
     }
     catch (_a) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
     if (!targetPlace) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
         return next(error);
     }
     try {
@@ -153,12 +154,13 @@ const deletePlace = async (req, res, next) => {
         sess.startTransaction();
         await targetPlace.remove({ session: sess });
         targetPlace.creatorId.places.pull(targetPlace);
-        sess.commitTransaction();
+        await targetPlace.creatorId.save({ session: sess });
+        await sess.commitTransaction();
     }
     catch (_b) {
-        const error = new http_error_1.HttpError(errorMessages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
+        const error = new http_error_1.HttpError(messages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
-    res.status(enums_1.HTTP_RESPONSE_STATUS.OK);
+    res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ message: messages_1.DELETED });
 };
 exports.deletePlace = deletePlace;

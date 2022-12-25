@@ -12,3 +12,8 @@ export const ERROR_DELETE = "Something went wrong, could not delete!";
 export const ERROR_SIGNUP = "signing up failed please try again later!";
 export const ERROR_LOGIN = "loging up failed please try again later!";
 export const ERROR_INVALID_CREDENTIALS = "invalid credentials!";
+
+/****************************************************************/
+
+export const DELETED = "Deleted successfully";
+export const LOGGEDIN = "Logged in successfully";

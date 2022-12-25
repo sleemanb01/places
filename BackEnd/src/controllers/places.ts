@@ -2,17 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
 import mongoose, { HydratedDocument, Model, Query, Schema } from "mongoose";
 
-import { IUser } from "../models/user.model";
-import Place from "../models/place.model";
+import User, { IUser } from "../models/user.model";
+import Place, { IPlace } from "../models/place.model";
 import { HttpError } from "../models/http-error";
 import { HTTP_RESPONSE_STATUS } from "../types/enums";
 import {
+  DELETED,
   ERROR_DELETE,
   ERROR_INTERNAL_SERVER,
   ERROR_INVALID_DATA,
   ERROR_INVALID_INPUTS,
   ERROR_LOGIN,
-} from "../util/errorMessages";
+} from "../util/messages";
 import { getCoordsForAddress } from "../util/location";
 
 /* ************************************************************** */
@@ -56,10 +57,10 @@ export const getPlacesByUserId = async (
   next: NextFunction
 ) => {
   const userId = req.params.userId;
-  let places = [];
+  let userWPlaces;
 
   try {
-    places = await Place.find({ creatorId: userId }).exec();
+    userWPlaces = await User.findById({ creatorId: userId });
   } catch {
     const error = new HttpError(
       ERROR_INVALID_DATA,
@@ -68,7 +69,7 @@ export const getPlacesByUserId = async (
     return next(error);
   }
 
-  if (places.length === 0) {
+  if (!userWPlaces || userWPlaces.places.length === 0) {
     const error = new HttpError(
       ERROR_INVALID_DATA,
       HTTP_RESPONSE_STATUS.Not_Found
@@ -76,9 +77,11 @@ export const getPlacesByUserId = async (
     return next(error);
   }
 
-  res
-    .status(HTTP_RESPONSE_STATUS.OK)
-    .json({ places: places.map((place) => place.toObject({ getters: true })) });
+  res.status(HTTP_RESPONSE_STATUS.OK).json({
+    places: userWPlaces.places.map((place) =>
+      place.toObject({ getters: true })
+    ),
+  });
 };
 
 /* ************************************************************** */
@@ -245,7 +248,8 @@ export const deletePlace = async (
     sess.startTransaction();
     await targetPlace!.remove({ session: sess });
     targetPlace.creatorId.places.pull(targetPlace);
-    sess.commitTransaction();
+    await targetPlace.creatorId.save({ session: sess });
+    await sess.commitTransaction();
   } catch {
     const error = new HttpError(
       ERROR_DELETE,
@@ -254,5 +258,5 @@ export const deletePlace = async (
     return next(error);
   }
 
-  res.status(HTTP_RESPONSE_STATUS.OK);
+  res.status(HTTP_RESPONSE_STATUS.OK).json({ message: DELETED });
 };

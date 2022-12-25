@@ -7,7 +7,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   imageUrl?: string;
-  places: mongoose.Types.Array<IPlace>;
+  places: Types.Array<IPlace>;
 }
 
 const MINLENGTH = 6;

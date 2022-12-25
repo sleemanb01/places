@@ -9,16 +9,16 @@ const http_error_1 = require("./models/http-error");
 const places_1 = require("./routes/places");
 const users_1 = require("./routes/users");
 const enums_1 = require("./types/enums");
-const errorMessages_1 = require("./util/errorMessages");
+const messages_1 = require("./util/messages");
 const mongoose_1 = __importDefault(require("mongoose"));
 const PORT = 5000;
-const URI = 'mongodb+srv://placesAdmin:vutbcutbhqaz951@cluster0.vacgxjp.mongodb.net/places?retryWrites=true&w=majority';
+const URI = "mongodb+srv://placesAdmin:vutbcutbhqaz951@cluster0.vacgxjp.mongodb.net/places?retryWrites=true&w=majority";
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
-app.use('/api/places', places_1.placesRoutes);
-app.use('/api/users', users_1.usersRoutes);
+app.use("/api/places", places_1.placesRoutes);
+app.use("/api/users", users_1.usersRoutes);
 app.use((_req, _res, _next) => {
-    const error = new http_error_1.HttpError(errorMessages_1.ERROR_UNDEFINED_ROUTE, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+    const error = new http_error_1.HttpError(messages_1.ERROR_UNDEFINED_ROUTE, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
     throw error;
 });
 app.use((error, _req, res, next) => {
@@ -26,9 +26,10 @@ app.use((error, _req, res, next) => {
         return next(error);
     }
     res.status(error.code || enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
-    res.json({ message: error.message || errorMessages_1.ERROR_UNKNOWN_ERROR });
+    res.json({ message: error.message || messages_1.ERROR_UNKNOWN_ERROR });
 });
-mongoose_1.default.connect(URI)
+mongoose_1.default
+    .connect(URI)
     .then(() => {
     app.listen(PORT);
 })

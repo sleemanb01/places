@@ -11,7 +11,8 @@ import {
   ERROR_INVALID_INPUTS,
   ERROR_LOGIN,
   ERROR_SIGNUP,
-} from "../util/errorMessages";
+  LOGGEDIN,
+} from "../util/messages";
 
 /* ************************************************************** */
 
@@ -76,7 +77,7 @@ export const login = async (
     return next(error);
   }
 
-  res.json({ message: "Logged in!" });
+  res.json({ message: LOGGEDIN });
 };
 
 /* ************************************************************** */

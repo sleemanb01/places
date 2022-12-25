@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { Types, Document } from "mongoose";
 import { coordinates } from "../types/types";
 import { IUser } from "./user.model";
 
