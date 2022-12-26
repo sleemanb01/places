@@ -18,7 +18,8 @@ export function UserItem({ user }: { user: IUser }) {
           <div className="user-item__info">
             <h2>{user.name}</h2>
             <h3>
-              {user.placesCount} {user.placesCount === 1 ? "place" : "places"}
+              {user.places?.length}{" "}
+              {user.places?.length === 1 ? "place" : "places"}
             </h3>
           </div>
         </Link>

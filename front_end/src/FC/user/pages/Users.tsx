@@ -1,17 +1,37 @@
+import React from "react";
+import { useEffect, useState } from "react";
+import { useHttpClient } from "../../../hooks/http-hook";
 import { IUser } from "../../../typing/interfaces";
+import { getUsers } from "../../../util/axios";
+import { PATH_GETUSERS } from "../../../util/Constants";
+import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { UsersList } from "../components/UsersList";
 
 export function Users() {
-  let dUser1 = {
-    id: 1,
-    name: "sleeman nabwani",
-    email: "sleeman.nabwani@gmail.com",
-    image:
-      "https://media-exp1.licdn.com/dms/image/C4D03AQFcazRe-w1HAQ/profile-displayphoto-shrink_200_200/0/1664217952339?e=1675296000&v=beta&t=BbTNzfIXIBwBtIjWFmoayt3AWobOiK28azdyPHBCQVo",
-    placesCount: 4,
-  };
+  const [users, setUsers] = useState<IUser[]>([]);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
-  const USERS: IUser[] = [dUser1];
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const responseData = await sendRequest(PATH_GETUSERS);
 
-  return <UsersList users={USERS} />;
+        setUsers(responseData.users);
+      } catch (err) {}
+    };
+    fetchUsers();
+  }, [sendRequest]);
+
+  return (
+    <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner asOverlay />
+        </div>
+      )}
+      {!isLoading && users && <UsersList users={users} />}
+    </React.Fragment>
+  );
 }

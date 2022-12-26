@@ -6,7 +6,7 @@ export interface IUser {
   email: string;
   password?: string;
   image?: string;
-  placesCount?: number;
+  places?: IPlace[];
 }
 
 export interface IPlace {
