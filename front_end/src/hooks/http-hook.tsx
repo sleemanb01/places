@@ -6,21 +6,7 @@ export const useHttpClient = () => {
   const [error, setError] = useState<string | null>(null);
   const activeHttpRequests = useRef<AbortController[]>([]);
 
-  useEffect(() => {
-    return () => {
-      activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
-    };
-  }, []);
-
   const BACKEND_URL = "http://localhost:5000/api/";
-
-  const errorHandler = (error: Error | any): string => {
-    if (error instanceof Error) {
-      return error.message;
-    } else {
-      return ERROR_UNKNOWN;
-    }
-  };
 
   const sendRequest = useCallback(
     async (
@@ -34,6 +20,8 @@ export const useHttpClient = () => {
       activeHttpRequests.current.push(httpAbortCtrl);
 
       try {
+        console.log("fetching...");
+
         const response = await fetch(BACKEND_URL + url, {
           method,
           body,
@@ -41,6 +29,7 @@ export const useHttpClient = () => {
           signal: httpAbortCtrl.signal,
         });
 
+        console.log("fetched");
         const responseData = await response.json();
 
         activeHttpRequests.current = activeHttpRequests.current.filter(
@@ -54,7 +43,7 @@ export const useHttpClient = () => {
         setIsLoading(false);
         return responseData;
       } catch (err: Error | any) {
-        setError(errorHandler(err));
+        setError(err.message || ERROR_UNKNOWN);
         setIsLoading(false);
         throw err;
       }
@@ -65,6 +54,13 @@ export const useHttpClient = () => {
   const clearError = () => {
     setError(null);
   };
+
+  useEffect(() => {
+    return () => {
+      console.log("abort...");
+      activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
+    };
+  }, []);
 
   return { isLoading, error, sendRequest, clearError };
 };

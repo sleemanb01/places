@@ -2,7 +2,6 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useHttpClient } from "../../../hooks/http-hook";
 import { IUser } from "../../../typing/interfaces";
-import { getUsers } from "../../../util/axios";
 import { PATH_GETUSERS } from "../../../util/Constants";
 import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
@@ -12,9 +11,13 @@ export function Users() {
   const [users, setUsers] = useState<IUser[]>([]);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
+  // console.log("rendering users...");
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        console.log("fetch users....");
+
         const responseData = await sendRequest(PATH_GETUSERS);
 
         setUsers(responseData.users);
