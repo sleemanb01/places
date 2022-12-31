@@ -76,8 +76,7 @@ export const login = async (
 
     return next(error);
   }
-
-  res.json({ message: LOGGEDIN });
+  res.json(targetUser.toObject({ getters: true }));
 };
 
 /* ************************************************************** */
@@ -137,5 +136,5 @@ export const signup = async (
     return next(error);
   }
 
-  res.status(HTTP_RESPONSE_STATUS.Created).json({ user: createdUser });
+  res.status(HTTP_RESPONSE_STATUS.Created).json(createdUser);
 };

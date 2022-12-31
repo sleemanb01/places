@@ -20,8 +20,6 @@ export const useHttpClient = () => {
       activeHttpRequests.current.push(httpAbortCtrl);
 
       try {
-        console.log("fetching...");
-
         const response = await fetch(BACKEND_URL + url, {
           method,
           body,
@@ -29,7 +27,6 @@ export const useHttpClient = () => {
           signal: httpAbortCtrl.signal,
         });
 
-        console.log("fetched");
         const responseData = await response.json();
 
         activeHttpRequests.current = activeHttpRequests.current.filter(
@@ -57,7 +54,6 @@ export const useHttpClient = () => {
 
   useEffect(() => {
     return () => {
-      console.log("abort...");
       activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
     };
   }, []);

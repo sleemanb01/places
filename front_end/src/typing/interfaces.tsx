@@ -1,7 +1,7 @@
 import { coordinate } from "./types";
 
 export interface IUser {
-  id?: number;
+  _id?: string;
   name?: string;
   email: string;
   password?: string;
@@ -10,13 +10,13 @@ export interface IUser {
 }
 
 export interface IPlace {
-  id: number;
-  creatorId: number;
+  _id?: string;
+  creatorId: string;
   title: string;
   description: string;
   address: string;
-  coordinate: coordinate;
-  imageUrl: string;
+  coordinate?: coordinate;
+  imageUrl?: string;
 }
 
 export interface ICtx {

@@ -13,6 +13,8 @@ export function PlaceItem({ place }: { place: IPlace }) {
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
+  const randomCoordinate = { lat: 32.938029, lng: 35.188625 };
+
   const openMapHandler = () => {
     setIsMapVisible(true);
   };
@@ -34,7 +36,7 @@ export function PlaceItem({ place }: { place: IPlace }) {
     console.log("DELETING...");
   };
 
-  const isCreator = ctx.user?.id === place.creatorId;
+  const isCreator = ctx.user?._id === place.creatorId;
 
   return (
     <React.Fragment>
@@ -47,7 +49,10 @@ export function PlaceItem({ place }: { place: IPlace }) {
         footer={<Button onClick={closeMapHandler}>CLOSE</Button>}
       >
         <div className="map-container">
-          <Map center={place.coordinate} zoom={8} />
+          <Map
+            center={place.coordinate ? place.coordinate : randomCoordinate}
+            zoom={8}
+          />
         </div>
       </Modal>
       <Modal
@@ -82,7 +87,7 @@ export function PlaceItem({ place }: { place: IPlace }) {
             <Button inverse={true} onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            {isCreator && <Button to={`/places/${place.id}`}>EDIT</Button>}
+            {isCreator && <Button to={`/places/${place._id}`}>EDIT</Button>}
             {isCreator && (
               <Button danger={true} onClick={openConfirmHandler}>
                 DELETE

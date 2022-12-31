@@ -1,40 +1,39 @@
+import React from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useHttpClient } from "../../../hooks/http-hook";
 import { IPlace } from "../../../typing/interfaces";
+import { PATH_USER_PLACES } from "../../../util/Constants";
+import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { PlacesList } from "../components/PlacesList";
 
 export function Places() {
-  const P1 = {
-    id: 1,
-    creatorId: 1,
-    title: "Empire state building",
-    description: "one of the most popular sky scrapers on the world",
-    address: "20 W 34th st, New York, NY 10001",
-    coordinate: {
-      lat: 40.7484405,
-      lng: -73.9878584,
-    },
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg",
-  };
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const [places, setPlaces] = useState<IPlace[]>([]);
+  const userId = useParams().userId;
 
-  const P2 = {
-    id: 2,
-    creatorId: 1,
-    title: "Azrieli Center",
-    description: "one of the most popular building in israel",
-    address: "Derech Menachem Begin, Tel Aviv-Yafo",
-    coordinate: {
-      lat: 32.0740769,
-      lng: 34.7900141,
-    },
-    imageUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg",
-  };
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      try {
+        const res = await sendRequest(PATH_USER_PLACES + "/" + userId);
 
-  const DUMMY_PLACES: IPlace[] = [P1, P2];
-  const userId: number = parseInt(useParams().userId as string);
+        setPlaces(res.places);
+      } catch (err) {}
+    };
+
+    fetchPlaces();
+  }, [sendRequest, userId]);
 
   return (
-    <PlacesList places={DUMMY_PLACES.filter((e) => e.creatorId === userId)} />
+    <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner asOverlay />
+        </div>
+      )}
+      <PlacesList places={places.filter((e) => e.creatorId === userId)} />
+    </React.Fragment>
   );
 }

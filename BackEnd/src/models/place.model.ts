@@ -5,7 +5,7 @@ import { IUser } from "./user.model";
 const Schema = mongoose.Schema;
 
 export interface IPlace extends Document {
-  id?: Types.ObjectId;
+  _id?: Types.ObjectId;
   creatorId: IUser["id"];
   title: string;
   description: string;

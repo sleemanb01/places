@@ -57,10 +57,12 @@ export const getPlacesByUserId = async (
   next: NextFunction
 ) => {
   const userId = req.params.userId;
+  console.log(userId);
+
   let userWPlaces;
 
   try {
-    userWPlaces = await User.findById({ creatorId: userId });
+    userWPlaces = await User.findById(userId).populate("places");
   } catch {
     const error = new HttpError(
       ERROR_INVALID_DATA,
@@ -92,7 +94,6 @@ export const createPlace = async (
   next: NextFunction
 ) => {
   const errors = validationResult(req);
-  console.log(errors);
 
   if (!errors.isEmpty()) {
     return next(
@@ -115,7 +116,7 @@ export const createPlace = async (
   let targetUser: IUser | null;
 
   try {
-    targetUser = await Place.findById(creatorId);
+    targetUser = await User.findById(creatorId);
   } catch {
     return next(
       new HttpError(ERROR_LOGIN, HTTP_RESPONSE_STATUS.Internal_Server_Error)

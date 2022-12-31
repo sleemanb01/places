@@ -9,7 +9,7 @@ export function UserItem({ user }: { user: IUser }) {
   return (
     <li className="user-item">
       <Card className="user-item__content">
-        <Link to={`/${user.id}/places`}>
+        <Link to={`/${user._id}/places`}>
           <div className="user-item__image">
             {user.image && (
               <Avatar image={user.image} alt={user.name + "image"} />

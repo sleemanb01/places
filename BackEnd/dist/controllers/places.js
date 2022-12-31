@@ -35,9 +35,10 @@ exports.getPlaceById = getPlaceById;
 /* ************************************************************** */
 const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
+    console.log(userId);
     let userWPlaces;
     try {
-        userWPlaces = await user_model_1.default.findById({ creatorId: userId });
+        userWPlaces = await user_model_1.default.findById(userId).populate("places");
     }
     catch (_a) {
         const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
@@ -55,7 +56,6 @@ exports.getPlacesByUserId = getPlacesByUserId;
 /* ************************************************************** */
 const createPlace = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
@@ -69,7 +69,7 @@ const createPlace = async (req, res, next) => {
     }
     let targetUser;
     try {
-        targetUser = await place_model_1.default.findById(creatorId);
+        targetUser = await user_model_1.default.findById(creatorId);
     }
     catch (_a) {
         return next(new http_error_1.HttpError(messages_1.ERROR_LOGIN, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));

@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 import { IPlace } from "./place.model";
 
 export interface IUser extends Document {
-  id?: Types.ObjectId;
+  _id?: Types.ObjectId;
   name: string;
   email: string;
   password?: string;

@@ -4,7 +4,9 @@ export const ERROR_DESCRIPTION_LENGTH =
   "Please enter a description between 5-50 characters!";
 export const ERROR_UNKNOWN = "Unknown error!";
 
+export const DEFAULT_HEADERS = { "Content-Type": "application/json" };
 export const PATH_SIGNUP = "users/signup";
 export const PATH_LOGIN = "users/login";
 export const PATH_GETUSERS = "users";
-export const DEFAULT_HEADERS = { "Content-Type": "application/json" };
+export const PATH_PLACES = "places";
+export const PATH_USER_PLACES = "places/user";

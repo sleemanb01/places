@@ -11,13 +11,9 @@ export function Users() {
   const [users, setUsers] = useState<IUser[]>([]);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
-  // console.log("rendering users...");
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        console.log("fetch users....");
-
         const responseData = await sendRequest(PATH_GETUSERS);
 
         setUsers(responseData.users);

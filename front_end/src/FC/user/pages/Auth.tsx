@@ -89,8 +89,10 @@ export function Auth() {
       } catch (err) {}
     }
 
+    console.log(res);
+
     if (res) {
-      ctx.login(user);
+      ctx.login(res);
     }
   };
   return (

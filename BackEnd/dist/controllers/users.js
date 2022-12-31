@@ -43,7 +43,7 @@ const login = async (req, res, next) => {
         const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_CREDENTIALS, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
         return next(error);
     }
-    res.json({ message: messages_1.LOGGEDIN });
+    res.json(targetUser.toObject({ getters: true }));
 };
 exports.login = login;
 /* ************************************************************** */
@@ -77,6 +77,6 @@ const signup = async (req, res, next) => {
         const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
-    res.status(enums_1.HTTP_RESPONSE_STATUS.Created).json({ user: createdUser });
+    res.status(enums_1.HTTP_RESPONSE_STATUS.Created).json(createdUser);
 };
 exports.signup = signup;

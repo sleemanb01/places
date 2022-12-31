@@ -20,7 +20,7 @@ export function PlacesList({ places }: { places: IPlace[] }) {
   return (
     <ul className="place-list">
       {places.map((curr) => (
-        <PlaceItem key={curr.id.toString()} place={curr} />
+        <PlaceItem key={curr._id!.toString()} place={curr} />
       ))}
     </ul>
   );
