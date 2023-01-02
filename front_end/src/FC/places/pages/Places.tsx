@@ -25,6 +25,12 @@ export function Places() {
     fetchPlaces();
   }, [sendRequest, userId]);
 
+  const placeDeletedHandler = (deletedPlaceId: string) => {
+    setPlaces((prevPlaces) =>
+      prevPlaces.filter((p) => p._id !== deletedPlaceId)
+    );
+  };
+
   return (
     <React.Fragment>
       <ErrorModal error={error} onClear={clearError} />
@@ -33,7 +39,10 @@ export function Places() {
           <LoadingSpinner asOverlay />
         </div>
       )}
-      <PlacesList places={places.filter((e) => e.creatorId === userId)} />
+      <PlacesList
+        places={places.filter((e) => e.creatorId === userId)}
+        onDeletePlace={placeDeletedHandler}
+      />
     </React.Fragment>
   );
 }

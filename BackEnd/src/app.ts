@@ -1,10 +1,6 @@
 import bodyParser from "body-parser";
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  ErrorRequestHandler,
-} from "express";
+import fs from "fs";
+import express, { Request, Response, NextFunction } from "express";
 import { HttpError } from "./models/http-error";
 import { placesRoutes } from "./routes/places";
 import { usersRoutes } from "./routes/users";
@@ -20,7 +16,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
@@ -41,15 +37,18 @@ app.use((_req, _res, _next) => {
   throw error;
 });
 
-app.use(
-  (error: HttpError, _req: Request, res: Response, next: NextFunction) => {
-    if (res.headersSent) {
-      return next(error);
-    }
-    res.status(error.code || HTTP_RESPONSE_STATUS.Internal_Server_Error);
-    res.json({ message: error.message || ERROR_UNKNOWN_ERROR });
+app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
+  if (req.file) {
+    fs.unlink(req.file.path, () => {
+      console.log(error);
+    });
   }
-);
+  if (res.headersSent) {
+    return next(error);
+  }
+  res.status(error.code || HTTP_RESPONSE_STATUS.Internal_Server_Error);
+  res.json({ message: error.message || ERROR_UNKNOWN_ERROR });
+});
 
 mongoose
   .connect(URI)

@@ -7,9 +7,20 @@ import { Map } from "../../shared/components/UIElements/Map";
 
 import "./PlaceItem.css";
 import { AuthContext } from "../../../hooks/auth-context";
+import { useHttpClient } from "../../../hooks/http-hook";
+import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { DEFAULT_HEADERS, PATH_PLACES } from "../../../util/Constants";
 
-export function PlaceItem({ place }: { place: IPlace }) {
-  const ctx = useContext(AuthContext);
+export function PlaceItem({
+  place,
+  onDelete,
+}: {
+  place: IPlace;
+  onDelete: Function;
+}) {
+  const userId = useContext(AuthContext).user!._id!;
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
@@ -31,15 +42,20 @@ export function PlaceItem({ place }: { place: IPlace }) {
     setIsConfirmVisible(false);
   };
 
-  const confirmDeleteHandler = () => {
+  const confirmDeleteHandler = async () => {
     closeConfirmHandler();
-    console.log("DELETING...");
+
+    try {
+      await sendRequest(PATH_PLACES + "/" + place._id, "DELETE");
+      onDelete(place._id);
+    } catch (err) {}
   };
 
-  const isCreator = ctx.user?._id === place.creatorId;
+  const isCreator = userId === place.creatorId;
 
   return (
     <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
       <Modal
         show={isMapVisible}
         onCancel={closeMapHandler}
@@ -75,6 +91,7 @@ export function PlaceItem({ place }: { place: IPlace }) {
       </Modal>
       <li className="place-item">
         <Card className={"place-item__content"}>
+          {isLoading ? <LoadingSpinner asOverlay /> : <></>}
           <div className="place-item__image">
             <img src={place.imageUrl} alt={place.title + "image"} />
           </div>

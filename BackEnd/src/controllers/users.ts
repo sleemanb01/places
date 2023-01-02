@@ -97,7 +97,7 @@ export const signup = async (
     );
   }
 
-  const { name, email, password, imageUrl } = req.body;
+  const { name, email, password } = req.body;
 
   let alreadySigned;
 
@@ -122,7 +122,7 @@ export const signup = async (
     name,
     email,
     password,
-    imageUrl,
+    image: req.file?.path,
     places: [],
   });
 

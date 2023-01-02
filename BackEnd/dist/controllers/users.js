@@ -48,16 +48,17 @@ const login = async (req, res, next) => {
 exports.login = login;
 /* ************************************************************** */
 const signup = async (req, res, next) => {
+    var _a;
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
-    const { name, email, password, imageUrl } = req.body;
+    const { name, email, password } = req.body;
     let alreadySigned;
     try {
         alreadySigned = await user_model_1.default.findOne({ email: email });
     }
-    catch (_a) {
+    catch (_b) {
         return next(new http_error_1.HttpError(messages_1.ERROR_SIGNUP, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
     }
     if (alreadySigned) {
@@ -67,13 +68,13 @@ const signup = async (req, res, next) => {
         name,
         email,
         password,
-        imageUrl,
+        image: (_a = req.file) === null || _a === void 0 ? void 0 : _a.path,
         places: [],
     });
     try {
         await createdUser.save();
     }
-    catch (_b) {
+    catch (_c) {
         const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }

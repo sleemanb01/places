@@ -35,7 +35,6 @@ exports.getPlaceById = getPlaceById;
 /* ************************************************************** */
 const getPlacesByUserId = async (req, res, next) => {
     const userId = req.params.userId;
-    console.log(userId);
     let userWPlaces;
     try {
         userWPlaces = await user_model_1.default.findById(userId).populate("places");

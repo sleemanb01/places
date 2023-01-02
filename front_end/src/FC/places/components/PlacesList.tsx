@@ -6,7 +6,13 @@ import "./PlacesList.css";
 
 import { Button } from "../../shared/components/FormElements/Button";
 
-export function PlacesList({ places }: { places: IPlace[] }) {
+export function PlacesList({
+  places,
+  onDeletePlace,
+}: {
+  places: IPlace[];
+  onDeletePlace: Function;
+}) {
   if (places.length === 0) {
     return (
       <div className="place-list center">
@@ -20,7 +26,11 @@ export function PlacesList({ places }: { places: IPlace[] }) {
   return (
     <ul className="place-list">
       {places.map((curr) => (
-        <PlaceItem key={curr._id!.toString()} place={curr} />
+        <PlaceItem
+          key={curr._id!.toString()}
+          place={curr}
+          onDelete={onDeletePlace}
+        />
       ))}
     </ul>
   );

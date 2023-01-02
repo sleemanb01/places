@@ -6,7 +6,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
-  imageUrl?: string;
+  image?: string;
   places: Types.Array<IPlace>;
 }
 
@@ -16,7 +16,7 @@ const UserSchema: Schema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: MINLENGTH },
-  imageUrl: { type: String, required: false },
+  image: { type: String, required: false },
   places: [{ type: Schema.Types.ObjectId, required: true, ref: "Place" }],
 });
 

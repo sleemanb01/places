@@ -57,7 +57,6 @@ export const getPlacesByUserId = async (
   next: NextFunction
 ) => {
   const userId = req.params.userId;
-  console.log(userId);
 
   let userWPlaces;
 

@@ -7,6 +7,7 @@ import { reducerInputState } from "../../../typing/types";
 import {
   DEFAULT_HEADERS,
   ERROR_DESCRIPTION_LENGTH,
+  ERROR_IMAGE,
   ERROR_TEXT_REQUIRED,
   ERROR_VALID_EMAIL,
   PATH_LOGIN,
@@ -21,6 +22,7 @@ import "./Auth.css";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import { useHttpClient } from "../../../hooks/http-hook";
+import { ImageUpload } from "../../shared/components/FormElements/ImageUpload";
 
 export function Auth() {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -44,6 +46,7 @@ export function Auth() {
         {
           ...formState.inputs,
           name: undefined,
+          image: undefined,
         },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
@@ -52,6 +55,10 @@ export function Auth() {
         {
           ...formState.inputs,
           name: reducerInputStateInitVal,
+          image: {
+            value: "",
+            isValid: false,
+          },
         },
         false
       );
@@ -64,8 +71,8 @@ export function Auth() {
 
     let res;
     let user: IUser = {
-      email: formState.inputs.email!.value,
-      password: formState.inputs.password!.value,
+      email: formState.inputs.email!.value as string,
+      password: formState.inputs.password!.value as string,
     };
 
     if (isLoginMode) {
@@ -78,18 +85,22 @@ export function Auth() {
         );
       } catch (err) {}
     } else {
-      user = { ...user, name: formState.inputs.name!.value };
+      user = {
+        ...user,
+        name: formState.inputs.name!.value!,
+        image: formState.inputs.image!.value as any,
+      };
       try {
-        res = await sendRequest(
-          PATH_SIGNUP,
-          "POST",
-          JSON.stringify(user),
-          DEFAULT_HEADERS
-        );
+        const formData = new FormData();
+        formData.append("email", user.email);
+        formData.append("name", user.name!);
+        formData.append("password", user.password!);
+        formData.append("image", user.image!);
+        console.log(typeof user.image);
+
+        res = await sendRequest(PATH_SIGNUP, "POST", formData, DEFAULT_HEADERS);
       } catch (err) {}
     }
-
-    console.log(res);
 
     if (res) {
       ctx.login(res);
@@ -112,6 +123,14 @@ export function Auth() {
               validators={[EValidatorType.REQUIRE]}
               errorText={ERROR_TEXT_REQUIRED}
               onInput={inputHandler}
+            />
+          )}
+          {!isLoginMode && (
+            <ImageUpload
+              center
+              id="image"
+              onInput={inputHandler}
+              errorText={ERROR_IMAGE}
             />
           )}
           <Input

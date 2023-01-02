@@ -1,6 +1,6 @@
 import { EValidatorType } from "../typing/enums";
 
-const MINLENGTH = 5;
+const MINLENGTH = 6;
 const MAXLENGTH = 16;
 const MIN = 1;
 const MAX = 100;
