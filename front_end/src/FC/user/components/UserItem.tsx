@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IUser } from "../../../typing/interfaces";
+import { BACKEND_URL } from "../../../util/Constants";
 import Avatar from "../../shared/components/UIElements/Avatar";
 import Card from "../../shared/components/UIElements/Card";
 
@@ -12,7 +14,10 @@ export function UserItem({ user }: { user: IUser }) {
         <Link to={`/${user._id}/places`}>
           <div className="user-item__image">
             {user.image && (
-              <Avatar image={user.image} alt={user.name + "image"} />
+              <Avatar
+                image={BACKEND_URL + user.image}
+                alt={user.name + "image"}
+              />
             )}
           </div>
           <div className="user-item__info">

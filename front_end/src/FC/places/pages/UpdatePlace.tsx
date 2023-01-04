@@ -104,7 +104,9 @@ export function UpdatePlace() {
             validators={[EValidatorType.REQUIRE]}
             errorText={ERROR_TEXT_REQUIRED}
             onInput={inputHandler}
-            initValue={(formState.inputs.title as reducerInputState).value}
+            initValue={
+              (formState.inputs.title as reducerInputState).value as string
+            }
             initialIsValid={
               (formState.inputs.title as reducerInputState).isValid
             }
@@ -117,7 +119,8 @@ export function UpdatePlace() {
             errorText={ERROR_DESCRIPTION_LENGTH}
             onInput={inputHandler}
             initValue={
-              (formState.inputs.description as reducerInputState).value
+              (formState.inputs.description as reducerInputState)
+                .value as string
             }
             initialIsValid={
               (formState.inputs.description as reducerInputState).isValid

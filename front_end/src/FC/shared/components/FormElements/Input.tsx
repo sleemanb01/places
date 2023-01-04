@@ -75,7 +75,7 @@ export function Input({
         placeholder={placeHolder}
         onChange={changeHandler}
         onBlur={touchHandler}
-        value={inputState.value}
+        value={inputState.value as string}
       />
     ) : (
       <textarea
@@ -83,7 +83,7 @@ export function Input({
         rows={rows || 3}
         onChange={changeHandler}
         onBlur={touchHandler}
-        value={inputState.value}
+        value={inputState.value as string}
       />
     );
   return (

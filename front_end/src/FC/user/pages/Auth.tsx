@@ -55,10 +55,7 @@ export function Auth() {
         {
           ...formState.inputs,
           name: reducerInputStateInitVal,
-          image: {
-            value: "",
-            isValid: false,
-          },
+          image: reducerInputStateInitVal,
         },
         false
       );
@@ -87,8 +84,8 @@ export function Auth() {
     } else {
       user = {
         ...user,
-        name: formState.inputs.name!.value!,
-        image: formState.inputs.image!.value as any,
+        name: formState.inputs.name!.value as string,
+        image: formState.inputs.image!.value as string,
       };
       try {
         const formData = new FormData();
@@ -96,9 +93,8 @@ export function Auth() {
         formData.append("name", user.name!);
         formData.append("password", user.password!);
         formData.append("image", user.image!);
-        console.log(typeof user.image);
 
-        res = await sendRequest(PATH_SIGNUP, "POST", formData, DEFAULT_HEADERS);
+        res = await sendRequest(PATH_SIGNUP, "POST", formData);
       } catch (err) {}
     }
 

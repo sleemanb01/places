@@ -20,7 +20,7 @@ export const ImageUpload = ({
   const [previewUrl, setPreviewUrl] = useState<string | ArrayBuffer | null>(
     null
   );
-  const [isValid, setIsValid] = useState(false);
+  const [isValid, setIsValid] = useState(true);
   const filePickerRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const ImageUpload = ({
   }, [file]);
 
   const pickedHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let pickedFile;
+    let pickedFile: File | null = null;
     let fileIsValid = isValid;
     if (event.target.files && event.target.files.length === 1) {
       pickedFile = event.target.files[0];
@@ -60,7 +60,7 @@ export const ImageUpload = ({
         ref={filePickerRef}
         style={{ display: "none" }}
         type="file"
-        accept=".jpg,.png,.jpeg"
+        accept={ALLOWED_FILES}
         onChange={pickedHandler}
       />
       <div className={`image-upload ${center && "center"}`}>

@@ -6,7 +6,7 @@ const MIN = 1;
 const MAX = 100;
 
 export const VALIDATE = (
-  value: string | number,
+  value: string | number | File,
   validators: EValidatorType[]
 ) => {
   let isValid = true;
@@ -32,6 +32,10 @@ export const VALIDATE = (
     if (validator === EValidatorType.EMAIL) {
       value = value as string;
       isValid = isValid && /^\S+@\S+\.\S+$/.test(value);
+    }
+    if (validator === EValidatorType.FILE) {
+      value = value as File;
+      isValid = isValid && !!value.name.match(/\.(jpg|jpeg|png|gif)$/);
     }
   }
   return isValid;

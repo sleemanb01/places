@@ -11,7 +11,6 @@ import {
   ERROR_INVALID_INPUTS,
   ERROR_LOGIN,
   ERROR_SIGNUP,
-  LOGGEDIN,
 } from "../util/messages";
 
 /* ************************************************************** */

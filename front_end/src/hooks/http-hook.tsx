@@ -1,12 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { ERROR_UNKNOWN } from "../util/Constants";
+import { BACKEND_URL, ERROR_UNKNOWN } from "../util/Constants";
 
 export const useHttpClient = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const activeHttpRequests = useRef<AbortController[]>([]);
-
-  const BACKEND_URL = "http://localhost:5000/api/";
 
   const sendRequest = useCallback(
     async (

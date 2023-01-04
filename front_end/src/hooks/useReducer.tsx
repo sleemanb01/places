@@ -19,7 +19,7 @@ export const inputReducer = (
 ) => {
   switch (action.type) {
     case EReducerActionType.CHNAGE: {
-      const newVal = action.val as string;
+      let newVal = action.val;
       return {
         ...state,
         value: newVal,

@@ -11,3 +11,5 @@ export const PATH_LOGIN = "users/login";
 export const PATH_GETUSERS = "users";
 export const PATH_PLACES = "places";
 export const PATH_USER_PLACES = "places/user";
+
+export const BACKEND_URL = "http://localhost:5000/api/";
