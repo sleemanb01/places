@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
-import mongoose, { HydratedDocument, Model, Query, Schema } from "mongoose";
+import mongoose from "mongoose";
+import fs from "fs";
 
 import User, { IUser } from "../models/user.model";
-import Place, { IPlace } from "../models/place.model";
+import Place from "../models/place.model";
 import { HttpError } from "../models/http-error";
 import { HTTP_RESPONSE_STATUS } from "../types/enums";
 import {
@@ -58,7 +59,7 @@ export const getPlacesByUserId = async (
 ) => {
   const userId = req.params.userId;
 
-  let userWPlaces;
+  let userWPlaces: IUser | null;
 
   try {
     userWPlaces = await User.findById(userId).populate("places");
@@ -70,7 +71,7 @@ export const getPlacesByUserId = async (
     return next(error);
   }
 
-  if (!userWPlaces || userWPlaces.places.length === 0) {
+  if (!userWPlaces) {
     const error = new HttpError(
       ERROR_INVALID_DATA,
       HTTP_RESPONSE_STATUS.Not_Found
@@ -103,7 +104,7 @@ export const createPlace = async (
     );
   }
 
-  const { title, description, address, creatorId, imageUrl } = req.body;
+  const { title, description, address, creatorId } = req.body;
   let coordinate;
 
   try {
@@ -135,7 +136,7 @@ export const createPlace = async (
     title,
     description,
     address,
-    imageUrl,
+    image: req.file?.path,
     coordinate,
   });
 
@@ -257,6 +258,10 @@ export const deletePlace = async (
     );
     return next(error);
   }
+
+  fs.unlink(targetPlace.image!, (err: Error | null) => {
+    console.log(err!.message);
+  });
 
   res.status(HTTP_RESPONSE_STATUS.OK).json({ message: DELETED });
 };

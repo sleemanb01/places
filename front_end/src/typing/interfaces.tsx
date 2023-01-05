@@ -16,13 +16,5 @@ export interface IPlace {
   description: string;
   address: string;
   coordinate?: coordinate;
-  imageUrl?: string;
-}
-
-export interface ICtx {
-  isLoggedIn: boolean;
-  user: IUser | undefined;
-  login: (user: IUser) => void;
-  updatePerson: (user: IUser) => void;
-  logout: () => void;
+  image?: string;
 }

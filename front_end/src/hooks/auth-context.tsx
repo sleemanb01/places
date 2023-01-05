@@ -1,7 +1,7 @@
 import { createContext, useState } from "react";
-import { ICtx, IUser } from "../typing/interfaces";
+import { AuthCtx, userWToken } from "../typing/types";
 
-export const AuthContext = createContext<ICtx>({
+export const AuthContext = createContext<AuthCtx>({
   isLoggedIn: false,
   user: undefined,
   login: () => {},
@@ -10,13 +10,13 @@ export const AuthContext = createContext<ICtx>({
 });
 
 export function AuthContextProvider({ children }: { children: JSX.Element }) {
-  const [auth, setAuth] = useState<IUser | undefined>(undefined);
+  const [auth, setAuth] = useState<userWToken | undefined>(undefined);
 
-  function login(user: IUser) {
+  function login(user: userWToken) {
     setAuth(user);
   }
 
-  function updatePerson(user: IUser) {
+  function updatePerson(user: userWToken) {
     setAuth(user);
   }
 
@@ -24,7 +24,7 @@ export function AuthContextProvider({ children }: { children: JSX.Element }) {
     setAuth(undefined);
   }
 
-  const value: ICtx = {
+  const value: AuthCtx = {
     isLoggedIn: !!auth,
     user: auth,
     login: login,

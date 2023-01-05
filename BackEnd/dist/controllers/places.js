@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePlace = exports.updatePlace = exports.createPlace = exports.getPlacesByUserId = exports.getPlaceById = void 0;
 const express_validator_1 = require("express-validator");
 const mongoose_1 = __importDefault(require("mongoose"));
+const fs_1 = __importDefault(require("fs"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const place_model_1 = __importDefault(require("../models/place.model"));
 const http_error_1 = require("../models/http-error");
@@ -43,7 +44,7 @@ const getPlacesByUserId = async (req, res, next) => {
         const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
-    if (!userWPlaces || userWPlaces.places.length === 0) {
+    if (!userWPlaces) {
         const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
         return next(error);
     }
@@ -54,11 +55,12 @@ const getPlacesByUserId = async (req, res, next) => {
 exports.getPlacesByUserId = getPlacesByUserId;
 /* ************************************************************** */
 const createPlace = async (req, res, next) => {
+    var _a;
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
-    const { title, description, address, creatorId, imageUrl } = req.body;
+    const { title, description, address, creatorId } = req.body;
     let coordinate;
     try {
         coordinate = await (0, location_1.getCoordsForAddress)(address);
@@ -70,7 +72,7 @@ const createPlace = async (req, res, next) => {
     try {
         targetUser = await user_model_1.default.findById(creatorId);
     }
-    catch (_a) {
+    catch (_b) {
         return next(new http_error_1.HttpError(messages_1.ERROR_LOGIN, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
     }
     if (!targetUser) {
@@ -82,7 +84,7 @@ const createPlace = async (req, res, next) => {
         title,
         description,
         address,
-        imageUrl,
+        image: (_a = req.file) === null || _a === void 0 ? void 0 : _a.path,
         coordinate,
     });
     try {
@@ -93,7 +95,7 @@ const createPlace = async (req, res, next) => {
         await targetUser.save({ session: sess });
         sess.commitTransaction();
     }
-    catch (_b) {
+    catch (_c) {
         const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
@@ -160,6 +162,9 @@ const deletePlace = async (req, res, next) => {
         const error = new http_error_1.HttpError(messages_1.ERROR_DELETE, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
+    fs_1.default.unlink(targetPlace.image, (err) => {
+        console.log(err.message);
+    });
     res.status(enums_1.HTTP_RESPONSE_STATUS.OK).json({ message: messages_1.DELETED });
 };
 exports.deletePlace = deletePlace;

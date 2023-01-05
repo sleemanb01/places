@@ -5,12 +5,12 @@ import "./ImageUpload.css";
 
 export const ImageUpload = ({
   id,
-  center,
+  center = false,
   onInput,
   errorText,
 }: {
   id: string;
-  center: boolean;
+  center?: boolean;
   onInput: Function;
   errorText: string;
 }) => {

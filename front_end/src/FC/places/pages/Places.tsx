@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useHttpClient } from "../../../hooks/http-hook";
 import { IPlace } from "../../../typing/interfaces";
-import { PATH_USER_PLACES } from "../../../util/Constants";
+import { ENDPOINT_USER_PLACES } from "../../../util/Constants";
 import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { PlacesList } from "../components/PlacesList";
@@ -16,7 +16,7 @@ export function Places() {
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
-        const res = await sendRequest(PATH_USER_PLACES + "/" + userId);
+        const res = await sendRequest(ENDPOINT_USER_PLACES + "/" + userId);
 
         setPlaces(res.places);
       } catch (err) {}

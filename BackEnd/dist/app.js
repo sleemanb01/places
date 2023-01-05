@@ -12,10 +12,12 @@ const users_1 = require("./routes/users");
 const enums_1 = require("./types/enums");
 const messages_1 = require("./util/messages");
 const mongoose_1 = __importDefault(require("mongoose"));
+const path_1 = __importDefault(require("path"));
 const PORT = 5000;
 const URI = "mongodb+srv://placesAdmin:vutbcutbhqaz951@cluster0.vacgxjp.mongodb.net/places?retryWrites=true&w=majority";
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
+app.use("/uploads/images", express_1.default.static(path_1.default.join("uploads", "images")));
 app.use((_req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");

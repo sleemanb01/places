@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import {
   createPlace,
   deletePlace,
@@ -7,6 +7,8 @@ import {
   updatePlace,
 } from "../controllers/places";
 import { check } from "express-validator";
+import { fileUpload } from "../middleware/file-upload";
+import { authenticate } from "../middleware/auth";
 
 /* ************************************************************** */
 
@@ -16,8 +18,13 @@ placesRoutes.get("/:placeId", getPlaceById);
 
 placesRoutes.get("/user/:userId", getPlacesByUserId);
 
+placesRoutes.use(() => {
+  authenticate;
+});
+
 placesRoutes.post(
   "/",
+  fileUpload.single("image"),
   [
     check("title").not().isEmpty(),
     check("description").isLength({ min: 5 }),

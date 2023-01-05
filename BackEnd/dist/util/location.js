@@ -10,8 +10,6 @@ const enums_1 = require("../types/enums");
 const messages_1 = require("./messages");
 const API_KEY = "AIzaSyCSf_QGy1hKO-TV02oq9F4paGvsekJuaQI";
 const getCoordsForAddress = async (address) => {
-    // const coords:coordinates = {lat:0, lng:0};
-    // return coords;
     const response = await axios_1.default.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`);
     const data = response.data;
     if (!data || data.status === "ZERO_RESULTS") {

@@ -3,15 +3,15 @@ import { AuthContext } from "../../../hooks/auth-context";
 import { useForm } from "../../../hooks/form-hook";
 import { reducerInputStateInitVal } from "../../../hooks/useReducer";
 import { EValidatorType } from "../../../typing/enums";
-import { reducerInputState } from "../../../typing/types";
+import { reducerInputState, userWToken } from "../../../typing/types";
 import {
   DEFAULT_HEADERS,
   ERROR_DESCRIPTION_LENGTH,
   ERROR_IMAGE,
   ERROR_TEXT_REQUIRED,
   ERROR_VALID_EMAIL,
-  PATH_LOGIN,
-  PATH_SIGNUP,
+  ENDPOINT_LOGIN,
+  ENDPOINT_SIGNUP,
 } from "../../../util/Constants";
 import { Button } from "../../shared/components/FormElements/Button";
 import { Input } from "../../shared/components/FormElements/Input";
@@ -23,6 +23,8 @@ import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import { useHttpClient } from "../../../hooks/http-hook";
 import { ImageUpload } from "../../shared/components/FormElements/ImageUpload";
+
+/* ************************************************************************************************** */
 
 export function Auth() {
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -36,6 +38,8 @@ export function Auth() {
     },
     false
   );
+
+  /* ************************************************************************************************** */
 
   const switchModeHandler = () => {
     if (!isLoginMode) {
@@ -66,26 +70,28 @@ export function Auth() {
   const authSubmitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    let res;
+    let res: userWToken | undefined;
     let user: IUser = {
-      email: formState.inputs.email!.value as string,
-      password: formState.inputs.password!.value as string,
+      email: formState.inputs.email!.value,
+      password: formState.inputs.password!.value,
     };
 
     if (isLoginMode) {
       try {
         res = await sendRequest(
-          PATH_LOGIN,
+          ENDPOINT_LOGIN,
           "POST",
           JSON.stringify(user),
           DEFAULT_HEADERS
         );
+
+        ctx.login(res);
       } catch (err) {}
     } else {
       user = {
         ...user,
-        name: formState.inputs.name!.value as string,
-        image: formState.inputs.image!.value as string,
+        name: formState.inputs.name!.value,
+        image: formState.inputs.image!.value,
       };
       try {
         const formData = new FormData();
@@ -94,14 +100,15 @@ export function Auth() {
         formData.append("password", user.password!);
         formData.append("image", user.image!);
 
-        res = await sendRequest(PATH_SIGNUP, "POST", formData);
+        res = await sendRequest(ENDPOINT_SIGNUP, "POST", formData);
+
+        ctx.login(res);
       } catch (err) {}
     }
-
-    if (res) {
-      ctx.login(res);
-    }
   };
+
+  /* ************************************************************************************************** */
+
   return (
     <React.Fragment>
       <ErrorModal error={error} onClear={clearError} />

@@ -7,6 +7,8 @@ import {
 } from "../typing/types";
 import { VALIDATE } from "../util/validators";
 
+/* ************************************************************************************************** */
+
 export const reducerInputStateInitVal: reducerInputState = {
   value: "",
   isTouched: false,
@@ -42,6 +44,7 @@ export const reducerFormStateInitVal: reducerFormState = {
     title: reducerInputStateInitVal,
     description: reducerInputStateInitVal,
     address: reducerInputStateInitVal,
+    image: reducerInputStateInitVal,
   },
   isValid: false,
 };

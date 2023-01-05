@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import User from "../models/user.model";
 import { HttpError } from "../models/http-error";
@@ -12,6 +14,18 @@ import {
   ERROR_LOGIN,
   ERROR_SIGNUP,
 } from "../util/messages";
+import { responseWToken } from "../types/types";
+
+/* ************************************************************** */
+
+const SECRET_KEY = "topSecret";
+
+const internalError = () => {
+  return new HttpError(
+    ERROR_INTERNAL_SERVER,
+    HTTP_RESPONSE_STATUS.Internal_Server_Error
+  );
+};
 
 /* ************************************************************** */
 
@@ -24,11 +38,7 @@ export const getUsers = async (
   try {
     users = await User.find({}, "-password");
   } catch {
-    const error = new HttpError(
-      ERROR_INTERNAL_SERVER,
-      HTTP_RESPONSE_STATUS.Internal_Server_Error
-    );
-    return next(error);
+    return next(internalError());
   }
 
   res
@@ -67,7 +77,7 @@ export const login = async (
     );
   }
 
-  if (!targetUser || targetUser.password !== password) {
+  if (!targetUser) {
     const error = new HttpError(
       ERROR_INVALID_CREDENTIALS,
       HTTP_RESPONSE_STATUS.Unauthorized
@@ -75,7 +85,42 @@ export const login = async (
 
     return next(error);
   }
-  res.json(targetUser.toObject({ getters: true }));
+
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, targetUser.password!);
+  } catch {
+    return next(internalError());
+  }
+
+  if (!isValidPassword) {
+    const error = new HttpError(
+      ERROR_INVALID_CREDENTIALS,
+      HTTP_RESPONSE_STATUS.Unauthorized
+    );
+
+    return next(error);
+  }
+
+  let token;
+
+  try {
+    token = jwt.sign(
+      { userId: targetUser.id, email: targetUser.email },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch {
+    return next(internalError());
+  }
+
+  const ret: responseWToken = {
+    userId: targetUser.id,
+    email: targetUser.email,
+    token,
+  };
+
+  res.json(ret);
 };
 
 /* ************************************************************** */
@@ -97,6 +142,7 @@ export const signup = async (
   }
 
   const { name, email, password } = req.body;
+  const salt = 12;
 
   let alreadySigned;
 
@@ -117,10 +163,17 @@ export const signup = async (
     );
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, salt);
+  } catch {
+    return next(internalError());
+  }
+
   let createdUser = new User({
     name,
     email,
-    password,
+    password: hashedPassword,
     image: req.file?.path,
     places: [],
   });
@@ -128,12 +181,26 @@ export const signup = async (
   try {
     await createdUser.save();
   } catch {
-    const error = new HttpError(
-      ERROR_INTERNAL_SERVER,
-      HTTP_RESPONSE_STATUS.Internal_Server_Error
-    );
-    return next(error);
+    return next(internalError());
   }
 
-  res.status(HTTP_RESPONSE_STATUS.Created).json(createdUser);
+  let token;
+
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch {
+    return next(internalError());
+  }
+
+  const ret: responseWToken = {
+    userId: createdUser.id,
+    email: createdUser.email,
+    token,
+  };
+
+  res.status(HTTP_RESPONSE_STATUS.Created).json(ret);
 };

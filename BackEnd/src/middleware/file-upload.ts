@@ -32,7 +32,7 @@ const fileNameFunc = (
 };
 
 const fileFilterFunc = (
-  req: Express.Request,
+  _req: Express.Request,
   file: Express.Multer.File,
   cb: FileFilterCallback
 ) => {

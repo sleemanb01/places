@@ -7,6 +7,7 @@ import { usersRoutes } from "./routes/users";
 import { HTTP_RESPONSE_STATUS } from "./types/enums";
 import { ERROR_UNDEFINED_ROUTE, ERROR_UNKNOWN_ERROR } from "./util/messages";
 import mongoose from "mongoose";
+import path from "path";
 
 const PORT = 5000;
 const URI =
@@ -15,6 +16,8 @@ const URI =
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use((_req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

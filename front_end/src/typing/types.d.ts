@@ -1,4 +1,13 @@
 import { EReducerActionType, EValidatorType } from "./enums";
+import { IUser } from "./interfaces";
+
+export type AuthCtx = {
+  isLoggedIn: boolean;
+  user: responseWToken | undefined;
+  login: (user: responseWToken) => void;
+  updatePerson: (user: responseWToken) => void;
+  logout: () => void;
+};
 
 export type coordinate = {
   lat: number;
@@ -28,4 +37,10 @@ export type reducerFormAction = {
   type: EReducerActionType;
   input: reducerInputState | reducerFormState;
   inputId?: string;
+};
+
+export type userWToken = {
+  userId: string;
+  email: string;
+  token: string;
 };

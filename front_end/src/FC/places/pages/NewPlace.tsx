@@ -6,10 +6,10 @@ import { reducerFormStateInitVal } from "../../../hooks/useReducer";
 import { useNavigate } from "react-router-dom";
 import { EValidatorType } from "../../../typing/enums";
 import {
-  DEFAULT_HEADERS,
   ERROR_DESCRIPTION_LENGTH,
   ERROR_TEXT_REQUIRED,
-  PATH_PLACES,
+  ENDPOINT_PLACES,
+  ERROR_IMAGE,
 } from "../../../util/Constants";
 import { Button } from "../../shared/components/FormElements/Button";
 import { Input } from "../../shared/components/FormElements/Input";
@@ -17,6 +17,7 @@ import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 import "./PlaceForm.css";
+import { ImageUpload } from "../../shared/components/FormElements/ImageUpload";
 
 export function NewPlace() {
   const [formState, inputHandler] = useForm(
@@ -25,7 +26,7 @@ export function NewPlace() {
   );
   const nav = useNavigate();
 
-  const userId = useContext(AuthContext).user!._id;
+  const user = useContext(AuthContext).user;
 
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
@@ -36,20 +37,17 @@ export function NewPlace() {
       return;
     }
 
-    const newPlace = {
-      title: formState.inputs.title!.value,
-      description: formState.inputs.description!.value,
-      address: formState.inputs.address!.value,
-      creatorId: userId,
-    };
+    const formData = new FormData();
+    formData.append("title", formState.inputs.title!.value);
+    formData.append("description", formState.inputs.description!.value);
+    formData.append("address", formState.inputs.address!.value);
+    formData.append("creatorId", user.userId);
+    formData.append("image", formState.inputs.image!.value);
 
     try {
-      await sendRequest(
-        PATH_PLACES,
-        "POST",
-        JSON.stringify(newPlace),
-        DEFAULT_HEADERS
-      );
+      await sendRequest(ENDPOINT_PLACES, "POST", formData, {
+        Authorization: "Barer " + user.token,
+      });
 
       nav("/");
     } catch (err) {}
@@ -88,6 +86,11 @@ export function NewPlace() {
           validators={[EValidatorType.REQUIRE]}
           errorText={ERROR_TEXT_REQUIRED}
           onInput={inputHandler}
+        />
+        <ImageUpload
+          id="image"
+          onInput={inputHandler}
+          errorText={ERROR_IMAGE}
         />
         <Button type="submit" disabled={!formState.isValid}>
           ADD PLACE

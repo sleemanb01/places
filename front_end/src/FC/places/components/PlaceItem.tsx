@@ -10,7 +10,9 @@ import { AuthContext } from "../../../hooks/auth-context";
 import { useHttpClient } from "../../../hooks/http-hook";
 import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
-import { DEFAULT_HEADERS, PATH_PLACES } from "../../../util/Constants";
+import { BACKEND_URL, ENDPOINT_PLACES } from "../../../util/Constants";
+
+/* ************************************************************************************************** */
 
 export function PlaceItem({
   place,
@@ -19,11 +21,14 @@ export function PlaceItem({
   place: IPlace;
   onDelete: Function;
 }) {
-  const userId = useContext(AuthContext).user!._id!;
+  const userId = useContext(AuthContext).user!.userId!;
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
+  /* ************************************************************************************************** */
+
+  const isCreator = userId === place.creatorId;
   const randomCoordinate = { lat: 32.938029, lng: 35.188625 };
 
   const openMapHandler = () => {
@@ -46,12 +51,12 @@ export function PlaceItem({
     closeConfirmHandler();
 
     try {
-      await sendRequest(PATH_PLACES + "/" + place._id, "DELETE");
+      await sendRequest(ENDPOINT_PLACES + "/" + place._id, "DELETE");
       onDelete(place._id);
     } catch (err) {}
   };
 
-  const isCreator = userId === place.creatorId;
+  /* ************************************************************************************************** */
 
   return (
     <React.Fragment>
@@ -93,7 +98,7 @@ export function PlaceItem({
         <Card className={"place-item__content"}>
           {isLoading ? <LoadingSpinner asOverlay /> : <></>}
           <div className="place-item__image">
-            <img src={place.imageUrl} alt={place.title + "image"} />
+            <img src={BACKEND_URL + place.image} alt={place.title + "image"} />
           </div>
           <div className="place-item__info">
             <h2>{place.title}</h2>

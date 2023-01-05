@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { BACKEND_URL, ERROR_UNKNOWN } from "../util/Constants";
+import { BACKEND_API_URL, ERROR_UNKNOWN } from "../util/Constants";
 
 export const useHttpClient = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ export const useHttpClient = () => {
       activeHttpRequests.current.push(httpAbortCtrl);
 
       try {
-        const response = await fetch(BACKEND_URL + url, {
+        const response = await fetch(BACKEND_API_URL + url, {
           method,
           body,
           headers,

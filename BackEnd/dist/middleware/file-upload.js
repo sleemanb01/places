@@ -21,7 +21,7 @@ const fileNameFunc = (_req, file, cb) => {
     const ext = MIME_TYPE_MAP.get(file.mimetype);
     cb(null, (0, uuid_1.v4)() + "." + ext);
 };
-const fileFilterFunc = (req, file, cb) => {
+const fileFilterFunc = (_req, file, cb) => {
     const isValid = !!MIME_TYPE_MAP.get(file.mimetype);
     isValid ? cb(null, isValid) : cb(new Error(ERROR_MESSAGE));
 };

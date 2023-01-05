@@ -2,10 +2,12 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useHttpClient } from "../../../hooks/http-hook";
 import { IUser } from "../../../typing/interfaces";
-import { PATH_GETUSERS } from "../../../util/Constants";
+import { ENDPOINT_GETUSERS } from "../../../util/Constants";
 import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { UsersList } from "../components/UsersList";
+
+/* ************************************************************************************************** */
 
 export function Users() {
   const [users, setUsers] = useState<IUser[]>([]);
@@ -14,13 +16,15 @@ export function Users() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const responseData = await sendRequest(PATH_GETUSERS);
+        const responseData = await sendRequest(ENDPOINT_GETUSERS);
 
         setUsers(responseData.users);
       } catch (err) {}
     };
     fetchUsers();
   }, [sendRequest]);
+
+  /* ************************************************************************************************** */
 
   return (
     <React.Fragment>

@@ -11,7 +11,7 @@ import {
   DEFAULT_HEADERS,
   ERROR_DESCRIPTION_LENGTH,
   ERROR_TEXT_REQUIRED,
-  PATH_PLACES,
+  ENDPOINT_PLACES,
 } from "../../../util/Constants";
 import { Button } from "../../shared/components/FormElements/Button";
 import { Input } from "../../shared/components/FormElements/Input";
@@ -22,7 +22,7 @@ import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import "./PlaceForm.css";
 
 export function UpdatePlace() {
-  const userId = useContext(AuthContext).user!._id;
+  const userId = useContext(AuthContext).user!.userId;
   const placeId = useParams().placeId;
   const nav = useNavigate();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -35,7 +35,7 @@ export function UpdatePlace() {
   useEffect(() => {
     const fetchPlace = async () => {
       try {
-        const resData = await sendRequest(PATH_PLACES + "/" + placeId);
+        const resData = await sendRequest(ENDPOINT_PLACES + "/" + placeId);
         const place = resData.place;
         setLoaddedPlace(place);
 
@@ -77,7 +77,7 @@ export function UpdatePlace() {
     };
     try {
       await sendRequest(
-        PATH_PLACES + "/" + placeId,
+        ENDPOINT_PLACES + "/" + placeId,
         "PATCH",
         JSON.stringify(place),
         DEFAULT_HEADERS

@@ -11,7 +11,7 @@ export interface IPlace extends Document {
   description: string;
   address: string;
   coordinate: coordinates;
-  imageUrl?: string;
+  image?: string;
 }
 
 const placeSchema = new Schema<IPlace>({
@@ -19,7 +19,7 @@ const placeSchema = new Schema<IPlace>({
   title: { type: String, required: true },
   description: { type: String, required: true },
   address: { type: String, required: true },
-  imageUrl: { type: String, required: false },
+  image: { type: String, required: false },
   coordinate: {
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
