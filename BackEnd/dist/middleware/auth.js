@@ -8,7 +8,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
 const messages_1 = require("../util/messages");
-const authenticate = (req, _res, next) => {
+const authenticate = (req, next) => {
     if (req.method === "OPTIONS") {
         return next();
     }

@@ -18,8 +18,10 @@ placesRoutes.get("/:placeId", getPlaceById);
 
 placesRoutes.get("/user/:userId", getPlacesByUserId);
 
+const req = express.request;
+
 placesRoutes.use(() => {
-  authenticate;
+  authenticate(placesRoutes.arguments.request, placesRoutes.arguments.next);
 });
 
 placesRoutes.post(

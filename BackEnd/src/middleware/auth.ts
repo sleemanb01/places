@@ -10,11 +10,7 @@ interface UserIDJwtPayload extends jwt.JwtPayload {
   userId: string;
 }
 
-export const authenticate = (
-  req: AuthorizationRequest,
-  _res: Response,
-  next: NextFunction
-) => {
+export const authenticate = (req: AuthorizationRequest, next: NextFunction) => {
   if (req.method === "OPTIONS") {
     return next();
   }

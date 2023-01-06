@@ -48,6 +48,7 @@ export function NewPlace() {
       await sendRequest(ENDPOINT_PLACES, "POST", formData, {
         Authorization: "Barer " + user.token,
       });
+      console.log("submitting...");
 
       nav("/");
     } catch (err) {}
