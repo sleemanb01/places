@@ -22,7 +22,7 @@ import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import "./PlaceForm.css";
 
 export function UpdatePlace() {
-  const userId = useContext(AuthContext).user!.userId;
+  const user = useContext(AuthContext).user;
   const placeId = useParams().placeId;
   const nav = useNavigate();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -80,9 +80,12 @@ export function UpdatePlace() {
         ENDPOINT_PLACES + "/" + placeId,
         "PATCH",
         JSON.stringify(place),
-        DEFAULT_HEADERS
+        {
+          "Content-Type": "application/json",
+          Authorization: "Barer " + user?.token,
+        }
       );
-      nav("/" + userId + "/places");
+      nav("/" + user!.id + "/places");
     } catch (err) {}
   };
 

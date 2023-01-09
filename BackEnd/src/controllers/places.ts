@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 
 import User, { IUser } from "../models/user.model";
-import Place from "../models/place.model";
+import Place, { IPlace } from "../models/place.model";
 import { HttpError } from "../models/http-error";
 import { HTTP_RESPONSE_STATUS } from "../types/enums";
 import {
@@ -14,8 +14,10 @@ import {
   ERROR_INVALID_DATA,
   ERROR_INVALID_INPUTS,
   ERROR_LOGIN,
+  ERROR_UNAUTHORIZED,
 } from "../util/messages";
 import { getCoordsForAddress } from "../util/location";
+import { AuthorizationRequest, responseWToken } from "../types/types";
 
 /* ************************************************************** */
 
@@ -89,7 +91,7 @@ export const getPlacesByUserId = async (
 /* ************************************************************** */
 
 export const createPlace = async (
-  req: Request,
+  req: Request & { userData: { userId: string } },
   res: Response,
   next: NextFunction
 ) => {
@@ -104,7 +106,8 @@ export const createPlace = async (
     );
   }
 
-  const { title, description, address, creatorId } = req.body;
+  const { title, description, address } = req.body;
+  const creatorId = req.userData.userId;
   let coordinate;
 
   try {
@@ -161,7 +164,7 @@ export const createPlace = async (
 /* ************************************************************** */
 
 export const updatePlace = async (
-  req: Request,
+  req: AuthorizationRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -178,7 +181,7 @@ export const updatePlace = async (
 
   const { title, description } = req.body;
   const placeId = req.params.placeId;
-  let place;
+  let place: IPlace | null;
 
   try {
     place = await Place.findById(placeId);
@@ -186,6 +189,14 @@ export const updatePlace = async (
     const error = new HttpError(
       ERROR_INTERNAL_SERVER,
       HTTP_RESPONSE_STATUS.Internal_Server_Error
+    );
+    return next(error);
+  }
+
+  if (place?.creatorId.toString() !== req.userData.userId) {
+    const error = new HttpError(
+      ERROR_UNAUTHORIZED,
+      HTTP_RESPONSE_STATUS.Unauthorized
     );
     return next(error);
   }
@@ -217,7 +228,7 @@ export const updatePlace = async (
 /* ************************************************************** */
 
 export const deletePlace = async (
-  req: Request,
+  req: AuthorizationRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -240,6 +251,17 @@ export const deletePlace = async (
     const error = new HttpError(
       ERROR_INVALID_DATA,
       HTTP_RESPONSE_STATUS.Not_Found
+    );
+    return next(error);
+  }
+
+  if (
+    targetPlace.creatorId._id &&
+    targetPlace?.creatorId.id !== req.userData.userId
+  ) {
+    const error = new HttpError(
+      ERROR_UNAUTHORIZED,
+      HTTP_RESPONSE_STATUS.Unauthorized
     );
     return next(error);
   }

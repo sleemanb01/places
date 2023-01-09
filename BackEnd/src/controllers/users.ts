@@ -54,7 +54,6 @@ export const login = async (
   next: NextFunction
 ) => {
   const errors = validationResult(req);
-  console.log(errors);
 
   if (!errors.isEmpty()) {
     return next(
@@ -80,7 +79,7 @@ export const login = async (
   if (!targetUser) {
     const error = new HttpError(
       ERROR_INVALID_CREDENTIALS,
-      HTTP_RESPONSE_STATUS.Unauthorized
+      HTTP_RESPONSE_STATUS.Forbidden
     );
 
     return next(error);
@@ -96,7 +95,7 @@ export const login = async (
   if (!isValidPassword) {
     const error = new HttpError(
       ERROR_INVALID_CREDENTIALS,
-      HTTP_RESPONSE_STATUS.Unauthorized
+      HTTP_RESPONSE_STATUS.Forbidden
     );
 
     return next(error);
@@ -115,7 +114,7 @@ export const login = async (
   }
 
   const ret: responseWToken = {
-    userId: targetUser.id,
+    id: targetUser.id,
     email: targetUser.email,
     token,
   };
@@ -197,7 +196,7 @@ export const signup = async (
   }
 
   const ret: responseWToken = {
-    userId: createdUser.id,
+    id: createdUser.id,
     email: createdUser.email,
     token,
   };

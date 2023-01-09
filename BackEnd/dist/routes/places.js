@@ -13,10 +13,7 @@ const auth_1 = require("../middleware/auth");
 exports.placesRoutes = express_1.default.Router();
 exports.placesRoutes.get("/:placeId", places_1.getPlaceById);
 exports.placesRoutes.get("/user/:userId", places_1.getPlacesByUserId);
-const req = express_1.default.request;
-exports.placesRoutes.use(() => {
-    (0, auth_1.authenticate)(exports.placesRoutes.arguments.request, exports.placesRoutes.arguments.next);
-});
+exports.placesRoutes.use(auth_1.authenticate);
 exports.placesRoutes.post("/", file_upload_1.fileUpload.single("image"), [
     (0, express_validator_1.check)("title").not().isEmpty(),
     (0, express_validator_1.check)("description").isLength({ min: 5 }),

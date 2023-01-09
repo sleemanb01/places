@@ -60,7 +60,8 @@ const createPlace = async (req, res, next) => {
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
-    const { title, description, address, creatorId } = req.body;
+    const { title, description, address } = req.body;
+    const creatorId = req.userData.userId;
     let coordinate;
     try {
         coordinate = await (0, location_1.getCoordsForAddress)(address);
@@ -118,6 +119,10 @@ const updatePlace = async (req, res, next) => {
         const error = new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
         return next(error);
     }
+    if ((place === null || place === void 0 ? void 0 : place.creatorId.toString()) !== req.userData.userId) {
+        const error = new http_error_1.HttpError(messages_1.ERROR_UNAUTHORIZED, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
+        return next(error);
+    }
     if (!place) {
         return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found));
     }
@@ -148,6 +153,11 @@ const deletePlace = async (req, res, next) => {
     }
     if (!targetPlace) {
         const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_DATA, enums_1.HTTP_RESPONSE_STATUS.Not_Found);
+        return next(error);
+    }
+    if (targetPlace.creatorId._id &&
+        (targetPlace === null || targetPlace === void 0 ? void 0 : targetPlace.creatorId.id) !== req.userData.userId) {
+        const error = new http_error_1.HttpError(messages_1.ERROR_UNAUTHORIZED, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
         return next(error);
     }
     try {

@@ -7,8 +7,8 @@ export const ERROR_IMAGE = "Please provide an image!";
 
 /* ************************************************************** */
 
-export const BACKEND_API_URL = "http://localhost:5000/api/";
 export const BACKEND_URL = "http://localhost:5000/";
+export const BACKEND_API_URL = BACKEND_URL + "api/";
 export const DEFAULT_HEADERS = { "Content-Type": "application/json" };
 
 /* ************************************************************** */

@@ -85,7 +85,7 @@ export function Auth() {
           DEFAULT_HEADERS
         );
 
-        ctx.login(res);
+        ctx.login(res!);
       } catch (err) {}
     } else {
       user = {
@@ -102,7 +102,7 @@ export function Auth() {
 
         res = await sendRequest(ENDPOINT_SIGNUP, "POST", formData);
 
-        ctx.login(res);
+        ctx.login(res!);
       } catch (err) {}
     }
   };

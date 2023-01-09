@@ -4,14 +4,21 @@ export type coordinates = {
 };
 
 export type responseWToken = {
-  userId: string;
+  id: string;
   email: string;
   token: string;
 };
 
-export type AuthorizationRequest = Request & {
+export type AuthorizationRequest = Request<
+  ParamsDictionary,
+  any,
+  any,
+  ParsedQs,
+  Record<string, any>
+> & {
   headers: { authorization: string };
   userData: { userId: string };
+  userData: responseWToken;
 };
 
 // export interface IAuthorizedRequest extends Express.Request {

@@ -3,9 +3,9 @@ import { IUser } from "./interfaces";
 
 export type AuthCtx = {
   isLoggedIn: boolean;
-  user: responseWToken | undefined;
-  login: (user: responseWToken) => void;
-  updatePerson: (user: responseWToken) => void;
+  user: userWToken | undefined;
+  login: (user: userWToken) => void;
+  updatePerson: (user: userWToken) => void;
   logout: () => void;
 };
 
@@ -40,7 +40,8 @@ export type reducerFormAction = {
 };
 
 export type userWToken = {
-  userId: string;
+  id: string;
   email: string;
   token: string;
+  tokenExpiration: Date;
 };

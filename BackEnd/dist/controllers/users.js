@@ -33,7 +33,6 @@ exports.getUsers = getUsers;
 /* ************************************************************** */
 const login = async (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
         return next(new http_error_1.HttpError(messages_1.ERROR_INVALID_INPUTS, enums_1.HTTP_RESPONSE_STATUS.Unprocessable_Entity));
     }
@@ -46,7 +45,7 @@ const login = async (req, res, next) => {
         return next(new http_error_1.HttpError(messages_1.ERROR_LOGIN, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error));
     }
     if (!targetUser) {
-        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_CREDENTIALS, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_CREDENTIALS, enums_1.HTTP_RESPONSE_STATUS.Forbidden);
         return next(error);
     }
     let isValidPassword = false;
@@ -57,7 +56,7 @@ const login = async (req, res, next) => {
         return next(internalError());
     }
     if (!isValidPassword) {
-        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_CREDENTIALS, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
+        const error = new http_error_1.HttpError(messages_1.ERROR_INVALID_CREDENTIALS, enums_1.HTTP_RESPONSE_STATUS.Forbidden);
         return next(error);
     }
     let token;
@@ -68,7 +67,7 @@ const login = async (req, res, next) => {
         return next(internalError());
     }
     const ret = {
-        userId: targetUser.id,
+        id: targetUser.id,
         email: targetUser.email,
         token,
     };
@@ -122,7 +121,7 @@ const signup = async (req, res, next) => {
         return next(internalError());
     }
     const ret = {
-        userId: createdUser.id,
+        id: createdUser.id,
         email: createdUser.email,
         token,
     };

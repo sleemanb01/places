@@ -1,4 +1,4 @@
-import express, { NextFunction } from "express";
+import express from "express";
 import {
   createPlace,
   deletePlace,
@@ -18,11 +18,7 @@ placesRoutes.get("/:placeId", getPlaceById);
 
 placesRoutes.get("/user/:userId", getPlacesByUserId);
 
-const req = express.request;
-
-placesRoutes.use(() => {
-  authenticate(placesRoutes.arguments.request, placesRoutes.arguments.next);
-});
+placesRoutes.use(authenticate);
 
 placesRoutes.post(
   "/",

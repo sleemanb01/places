@@ -26,7 +26,7 @@ export function NewPlace() {
   );
   const nav = useNavigate();
 
-  const user = useContext(AuthContext).user;
+  const user = useContext(AuthContext).user!;
 
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
@@ -41,7 +41,7 @@ export function NewPlace() {
     formData.append("title", formState.inputs.title!.value);
     formData.append("description", formState.inputs.description!.value);
     formData.append("address", formState.inputs.address!.value);
-    formData.append("creatorId", user.userId);
+    formData.append("creatorId", user.id);
     formData.append("image", formState.inputs.image!.value);
 
     try {

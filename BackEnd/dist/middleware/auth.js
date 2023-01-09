@@ -8,7 +8,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
 const messages_1 = require("../util/messages");
-const authenticate = (req, next) => {
+const authenticate = (req, _res, next) => {
     if (req.method === "OPTIONS") {
         return next();
     }
@@ -17,13 +17,13 @@ const authenticate = (req, next) => {
         if (!token) {
             throw new Error();
         }
-        const decodedToken = jsonwebtoken_1.default.verify(token, "supersecret_dont_share");
+        const decodedToken = jsonwebtoken_1.default.verify(token, "topSecret");
         const userId = decodedToken.userId;
         req.userData = { userId: userId };
         next();
     }
     catch (_a) {
-        const error = new http_error_1.HttpError(messages_1.ERROR_UNAUTHORIZED, enums_1.HTTP_RESPONSE_STATUS.Unauthorized);
+        const error = new http_error_1.HttpError(messages_1.ERROR_UNAUTHORIZED, enums_1.HTTP_RESPONSE_STATUS.Forbidden);
         return next(error);
     }
 };

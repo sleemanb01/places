@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import "./App.css";
 import {
   BrowserRouter as Router,
@@ -13,9 +13,21 @@ import { NewPlace } from "./FC/places/pages/NewPlace";
 import { UpdatePlace } from "./FC/places/pages/UpdatePlace";
 import { Auth } from "./FC/user/pages/Auth";
 import { AuthContext } from "./hooks/auth-context";
+import { userWToken } from "./typing/types";
+import { IUser } from "./typing/interfaces";
 
 function App() {
   const authCtx = useContext(AuthContext);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("userData");
+    if (storedData) {
+      const user: userWToken = JSON.parse(storedData);
+      if (user.token) {
+        authCtx.login(user);
+      }
+    }
+  }, [authCtx.login]);
 
   let routes;
 

@@ -13,7 +13,7 @@ export function NavLinks() {
       </li>
       {auth.isLoggedIn && (
         <li>
-          <NavLink to={`/${auth.user?.userId}/places`}>MY PLACES</NavLink>
+          <NavLink to={`/${auth.user?.id}/places`}>MY PLACES</NavLink>
         </li>
       )}
       {auth.isLoggedIn && (

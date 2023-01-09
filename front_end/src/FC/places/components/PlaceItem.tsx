@@ -21,14 +21,14 @@ export function PlaceItem({
   place: IPlace;
   onDelete: Function;
 }) {
-  const userId = useContext(AuthContext).user!.userId!;
+  const user = useContext(AuthContext).user!;
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
   /* ************************************************************************************************** */
 
-  const isCreator = userId === place.creatorId;
+  const isCreator = user.id === place.creatorId;
   const randomCoordinate = { lat: 32.938029, lng: 35.188625 };
 
   const openMapHandler = () => {
@@ -51,7 +51,9 @@ export function PlaceItem({
     closeConfirmHandler();
 
     try {
-      await sendRequest(ENDPOINT_PLACES + "/" + place._id, "DELETE");
+      await sendRequest(ENDPOINT_PLACES + "/" + place._id, "DELETE", null, {
+        Authorization: "Barer " + user.token,
+      });
       onDelete(place._id);
     } catch (err) {}
   };
