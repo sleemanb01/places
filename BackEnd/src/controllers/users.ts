@@ -18,7 +18,7 @@ import { responseWToken } from "../types/types";
 
 /* ************************************************************** */
 
-const SECRET_KEY = "topSecret";
+const SECRET_KEY = process.env.JWT_KEY as string;
 
 const internalError = () => {
   return new HttpError(

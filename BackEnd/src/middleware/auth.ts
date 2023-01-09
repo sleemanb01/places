@@ -26,7 +26,7 @@ export const authenticate = (
       throw new Error();
     }
 
-    const decodedToken = jwt.verify(token, "topSecret");
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY as string);
     const userId = (decodedToken as UserIDJwtPayload).userId;
     req.userData = { userId: userId };
     next();

@@ -3,7 +3,7 @@ import { HttpError } from "../models/http-error";
 import { HTTP_RESPONSE_STATUS } from "../types/enums";
 import { ERROR_INVALID_LOCATION } from "./messages";
 
-const API_KEY = "AIzaSyCSf_QGy1hKO-TV02oq9F4paGvsekJuaQI";
+const API_KEY = process.env.GOOGLE_API_KEY;
 
 export const getCoordsForAddress = async (address: string) => {
   const response = await axios.get(
