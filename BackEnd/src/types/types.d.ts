@@ -21,7 +21,10 @@ export type AuthorizationRequest = Request<
   userData: responseWToken;
 };
 
-// export interface IAuthorizedRequest extends Express.Request {
-//   headers: { authorization: string };
-//   userData: { userId: string };
-// }
+export type RequestWUser = Request<
+  ParamsDictionary,
+  any,
+  any,
+  ParsedQs,
+  Record<string, any>
+> & { userData: { userId: string } };

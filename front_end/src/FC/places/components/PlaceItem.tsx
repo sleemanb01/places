@@ -21,14 +21,14 @@ export function PlaceItem({
   place: IPlace;
   onDelete: Function;
 }) {
-  const user = useContext(AuthContext).user!;
+  const user = useContext(AuthContext).user;
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
   /* ************************************************************************************************** */
 
-  const isCreator = user.id === place.creatorId;
+  const isCreator = user ? user.id === place.creatorId : false;
   const randomCoordinate = { lat: 32.938029, lng: 35.188625 };
 
   const openMapHandler = () => {
@@ -52,7 +52,7 @@ export function PlaceItem({
 
     try {
       await sendRequest(ENDPOINT_PLACES + "/" + place._id, "DELETE", null, {
-        Authorization: "Barer " + user.token,
+        Authorization: "Barer " + user?.token,
       });
       onDelete(place._id);
     } catch (err) {}
@@ -100,7 +100,10 @@ export function PlaceItem({
         <Card className={"place-item__content"}>
           {isLoading ? <LoadingSpinner asOverlay /> : <></>}
           <div className="place-item__image">
-            <img src={BACKEND_URL + place.image} alt={place.title + "image"} />
+            <img
+              src={BACKEND_URL ? BACKEND_URL + place.image : ""}
+              alt={place.title + "image"}
+            />
           </div>
           <div className="place-item__info">
             <h2>{place.title}</h2>

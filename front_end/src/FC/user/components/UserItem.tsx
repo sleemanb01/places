@@ -14,7 +14,10 @@ export function UserItem({ user }: { user: IUser }) {
         <Link to={`/${user._id}/places`}>
           <div className="user-item__image">
             {user.image && (
-              <Avatar image={BACKEND_URL + image} alt={user.name + "image"} />
+              <Avatar
+                image={BACKEND_URL ? BACKEND_URL + image : ""}
+                alt={user.name + "image"}
+              />
             )}
           </div>
           <div className="user-item__info">

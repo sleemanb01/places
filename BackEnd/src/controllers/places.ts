@@ -17,7 +17,11 @@ import {
   ERROR_UNAUTHORIZED,
 } from "../util/messages";
 import { getCoordsForAddress } from "../util/location";
-import { AuthorizationRequest, responseWToken } from "../types/types";
+import {
+  AuthorizationRequest,
+  RequestWUser,
+  responseWToken,
+} from "../types/types";
 
 /* ************************************************************** */
 
@@ -91,7 +95,7 @@ export const getPlacesByUserId = async (
 /* ************************************************************** */
 
 export const createPlace = async (
-  req: Request & { userData: { userId: string } },
+  req: RequestWUser,
   res: Response,
   next: NextFunction
 ) => {

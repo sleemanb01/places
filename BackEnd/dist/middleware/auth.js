@@ -17,7 +17,7 @@ const authenticate = (req, _res, next) => {
         if (!token) {
             throw new Error();
         }
-        const decodedToken = jsonwebtoken_1.default.verify(token, "topSecret");
+        const decodedToken = jsonwebtoken_1.default.verify(token, process.env.JWT_KEY);
         const userId = decodedToken.userId;
         req.userData = { userId: userId };
         next();

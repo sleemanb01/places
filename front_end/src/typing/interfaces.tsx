@@ -16,5 +16,5 @@ export interface IPlace {
   description: string;
   address: string;
   coordinate?: coordinate;
-  image?: string;
+  image: string;
 }

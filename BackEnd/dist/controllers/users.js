@@ -12,7 +12,7 @@ const http_error_1 = require("../models/http-error");
 const enums_1 = require("../types/enums");
 const messages_1 = require("../util/messages");
 /* ************************************************************** */
-const SECRET_KEY = "topSecret";
+const SECRET_KEY = process.env.JWT_KEY;
 const internalError = () => {
     return new http_error_1.HttpError(messages_1.ERROR_INTERNAL_SERVER, enums_1.HTTP_RESPONSE_STATUS.Internal_Server_Error);
 };

@@ -11,7 +11,7 @@ import path from "path";
 
 const PORT = 5000;
 const ENV = process.env;
-const URI = `mongodb+srv://${ENV.DB_NAME}:${ENV.DB_PASSWORD}@cluster0.vacgxjp.mongodb.net/${ENV.DB_NAME}?retryWrites=true&w=majority`;
+const URI = `mongodb+srv://${ENV.DB_USER}:${ENV.DB_PASSWORD}@cluster0.vacgxjp.mongodb.net/${ENV.DB_NAME}?retryWrites=true&w=majority`;
 
 const app = express();
 
