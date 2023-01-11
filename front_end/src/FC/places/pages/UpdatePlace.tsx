@@ -21,7 +21,7 @@ import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 import "./PlaceForm.css";
 
-export function UpdatePlace() {
+function UpdatePlace() {
   const user = useContext(AuthContext).user;
   const placeId = useParams().placeId;
   const nav = useNavigate();
@@ -137,3 +137,5 @@ export function UpdatePlace() {
     </React.Fragment>
   );
 }
+
+export default UpdatePlace;

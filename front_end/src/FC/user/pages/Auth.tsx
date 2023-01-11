@@ -26,7 +26,7 @@ import { ImageUpload } from "../../shared/components/FormElements/ImageUpload";
 
 /* ************************************************************************************************** */
 
-export function Auth() {
+function Auth() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
@@ -165,3 +165,5 @@ export function Auth() {
     </React.Fragment>
   );
 }
+
+export default Auth;

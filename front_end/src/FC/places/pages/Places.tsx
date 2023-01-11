@@ -8,7 +8,7 @@ import { ErrorModal } from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { PlacesList } from "../components/PlacesList";
 
-export function Places() {
+function Places() {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [places, setPlaces] = useState<IPlace[]>([]);
   const userId = useParams().userId;
@@ -46,3 +46,5 @@ export function Places() {
     </React.Fragment>
   );
 }
+
+export default Places;

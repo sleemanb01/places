@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { Suspense, useContext, useEffect } from "react";
 import "./App.css";
 import {
   BrowserRouter as Router,
@@ -6,15 +6,17 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { Users } from "./FC/user/pages/Users";
-import { Places } from "./FC/places/pages/Places";
 import { MainNavigation } from "./FC/shared/components/Navigation/MainNavigation";
-import { NewPlace } from "./FC/places/pages/NewPlace";
-import { UpdatePlace } from "./FC/places/pages/UpdatePlace";
-import { Auth } from "./FC/user/pages/Auth";
 import { AuthContext } from "./hooks/auth-context";
 import { userWToken } from "./typing/types";
-import { IUser } from "./typing/interfaces";
+import React from "react";
+import LoadingSpinner from "./FC/shared/components/UIElements/LoadingSpinner";
+
+const Users = React.lazy(() => import("./FC/user/pages/Users"));
+const UpdatePlace = React.lazy(() => import("./FC/places/pages/UpdatePlace"));
+const NewPlace = React.lazy(() => import("./FC/places/pages/NewPlace"));
+const Places = React.lazy(() => import("./FC/places/pages/Places"));
+const Auth = React.lazy(() => import("./FC/user/pages/Auth"));
 
 function App() {
   const authCtx = useContext(AuthContext);
@@ -55,7 +57,17 @@ function App() {
   return (
     <Router>
       <MainNavigation />
-      <main>{routes}</main>
+      <main>
+        <Suspense
+          fallback={
+            <div className="center">
+              <LoadingSpinner asOverlay />
+            </div>
+          }
+        >
+          {routes}
+        </Suspense>
+      </main>
     </Router>
   );
 }

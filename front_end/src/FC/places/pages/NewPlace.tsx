@@ -19,7 +19,7 @@ import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import "./PlaceForm.css";
 import { ImageUpload } from "../../shared/components/FormElements/ImageUpload";
 
-export function NewPlace() {
+function NewPlace() {
   const [formState, inputHandler] = useForm(
     reducerFormStateInitVal.inputs,
     reducerFormStateInitVal.isValid
@@ -100,3 +100,5 @@ export function NewPlace() {
     </React.Fragment>
   );
 }
+
+export default NewPlace;

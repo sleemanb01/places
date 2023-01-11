@@ -9,7 +9,7 @@ import { UsersList } from "../components/UsersList";
 
 /* ************************************************************************************************** */
 
-export function Users() {
+function Users() {
   const [users, setUsers] = useState<IUser[]>([]);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
@@ -38,3 +38,5 @@ export function Users() {
     </React.Fragment>
   );
 }
+
+export default Users;
