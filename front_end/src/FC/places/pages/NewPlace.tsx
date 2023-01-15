@@ -57,12 +57,8 @@ function NewPlace() {
   return (
     <React.Fragment>
       <ErrorModal error={error} onClear={clearError} />
-      {isLoading && (
-        <div className="center">
-          <LoadingSpinner asOverlay />
-        </div>
-      )}
       <form className="place-form" onSubmit={submitHandler}>
+        {isLoading && <LoadingSpinner asOverlay />}
         <Input
           id="title"
           element="input"
