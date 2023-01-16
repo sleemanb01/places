@@ -2,7 +2,7 @@ import { CSSProperties, useRef, useEffect } from "react";
 import { coordinate } from "../../../../typing/types";
 import "./Map.css";
 
-const API_KEY = "AIzaSyCSf_QGy1hKO-TV02oq9F4paGvsekJuaQI";
+const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 
 export function Map({
   className,
